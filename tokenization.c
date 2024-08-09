@@ -85,8 +85,9 @@ void	tokenization(char *input)
 			i++;
 			while (input[i] && input[i] != '"')
 				i++;
-			if (input[i] == '"' && input[i + 1] && (input[i + 1] == ' ' || input[i + 1] == '\0'))
+			if (input[i] == '"' && (quotes % 2) == 1 && input[i + 1] && (input[i + 1] == ' ' || input[i + 1] == '\0'))
 			{
+				printf("bebebebe\n");
 				end = i;
 				item->next = malloc(sizeof(t_split));
 				if (!item->next)
@@ -99,21 +100,67 @@ void	tokenization(char *input)
 				quotes++;
 				continue ;
 			}
-			else
+			else if (input[i] == '"' && (quotes % 2) == 1)
 			{
-				// while (input[i] && input[i] != ' ')
-				// 	i++;
-				// end = i;
-				// item->next = malloc(sizeof(t_split));
-				// if (!item->next)
-				// 	return ;
-				// printf("start - %d, end - %d \n", start, end);
-				// ft_strcut(item->next, input, start, end);
-				// item = item->next;
-				// item->next = NULL;
-				// i++;
-				// quotes++;
-				// continue ;
+				quotes++;
+				while (input[i])
+				{
+					printf("%d\n", quotes);
+					while (input[i] && input[i] != ' ' && (quotes % 2) == 0)
+					{
+						i++;
+						printf("%d ----> %c\n", i,input[i]);
+						if (input[i] == '"')
+						{
+							i++;
+							quotes++;
+						}
+					}
+					printf("%d\n", quotes);
+					while (input[i] && input[i] != '"' && (quotes % 2) == 1)
+					{
+						printf("%d ----> %c\n", i,input[i]);
+						i++;
+						if (input[i] == '"')
+						{
+							i++;
+							quotes++;
+						}
+					}
+						printf("%d ----> %c\n", i,input[i]);
+					printf("%d\n", quotes);
+					end = i;
+					while (input[i] && input[i] != ' ' && (quotes % 2) != 0)
+					{
+						i++;
+						printf("%d ----> %c\n", i,input[i]);
+						if (input[i] == '"')
+						{
+							i++;
+							quotes++;
+						}
+					}
+					end = i;
+					printf("%d\n", quotes);
+					if ((quotes % 2) == 0 && (input[i] == '\0' || input[i] == ' '))
+					{
+						item->next = malloc(sizeof(t_split));
+						if (!item->next)
+						return ;
+						printf("start - %d, end - %d \n", start, end);
+						ft_strcut(item->next, input, start, end);
+						item = item->next;
+						item->next = NULL;
+						i++;
+						break ;
+					}
+					else if (input[i] == '"')
+					{
+						i++;
+						quotes++;
+					}
+				}
+				continue;
 			}
 		}
 		while (input[i] && (input[i] == ' ' || input[i] == '\t' || input[i] == '\n') && input[i] != '"')
@@ -142,6 +189,7 @@ void	tokenization(char *input)
 		item->next = NULL;
 		i++;
 	}
+	printf("quote:%d\n", quotes);
 	if (quotes % 2 != 0)
 		exit(1 && write(2, "Error\n", 6));
 	item = tmp->next;

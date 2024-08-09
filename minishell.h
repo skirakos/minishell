@@ -5,6 +5,7 @@
 # include <readline/history.h>
 # include <stdlib.h>
 # include <stdio.h>
+# include <unistd.h>
 
 typedef	struct s_split
 {
@@ -14,5 +15,6 @@ typedef	struct s_split
 }	t_split;
 
 void	tokenization(char *input);
+t_split	*ft_lstnew(char *content, char *type);
 
 #endif

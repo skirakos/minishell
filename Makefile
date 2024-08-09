@@ -5,14 +5,15 @@ TARGET = minishell
 CC = gcc
 
 # Compiler flags
-CFLAGS = -Wall -Wextra -Werror -I. #-g3 -fsanitize=address
+CFLAGS = -Wall -Wextra -Werror -I. -g3 -fsanitize=address
 
 # Libraries to link with
 LIBS = -lreadline -lncurses
 
 # Source files
 SRCS = minishell.c \
-		tokenization.c
+		tokenization.c \
+		lst_utils.c
 
 # Object files
 OBJS = $(SRCS:.c=.o)

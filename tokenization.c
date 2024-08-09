@@ -1,37 +1,44 @@
 #include "minishell.h"
 
-void	type_operator(t_split **item, char *input, int i)
+void	type_operator(t_split **item, char *input, int *i)
 {
 	(*item)->next = malloc(sizeof(t_split));
 	if (!(*item)->next)
 		return ;
 	(*item) = (*item)->next;
-	if (input[i] == '|')
+	if (input[*i] == '|')
 	{
 		(*item)->value = "|";
 		(*item)->type = "pipe";
 	}
-	else if (input[i] == '<')
+	else if (input[*i] == '<')
 	{
-		if (input[i] && input[i + 1] == '<')
+		if (input[*i] && input[*i + 1] == '<')
 		{
 			(*item)->value = "<<";
 			(*item)->type = "heredoc";
+			(*i)++;
 		}
-		(*item)->value = "<";
-		(*item)->type = "outredir";
+		else
+		{
+			(*item)->value = "<";
+			(*item)->type = "outredir";
+		}
 	}
-	else if (input[i] == '>')
+	else if (input[*i] == '>')
 	{
-		if (input[i] && input[i + 1] == '>')
+		if (input[*i] && input[*i + 1] == '>')
 		{
 			(*item)->value = ">>";
 			(*item)->type = "append";
+			(*i)++;
 		}
-		(*item)->value = ">";
-		(*item)->type = "inredir";
+		else
+		{
+			(*item)->value = ">";
+			(*item)->type = "inredir";
+		}
 	}
-
 	(*item)->next = NULL;
 }
 
@@ -50,6 +57,7 @@ void	ft_strcut(t_split *item, char *input, int start, int end)
 		start++;
 	}
 	item->value[i] = '\0';
+	//printf("%s\n", item->value);
 	item->type = "word";
 }
 
@@ -58,42 +66,88 @@ void	tokenization(char *input)
 	int		i;
 	int		start;
 	int		end;
+	int		quotes;
 	t_split	*item;
 	t_split	*tmp;
 
-	item = malloc(sizeof(t_split));
+	item = ft_lstnew(NULL, NULL);
 	if (!item)
 		return ;
 	tmp = item;
 	i = 0;
+	quotes = 0;
 	while (input[i])
 	{
-		while (input[i] && (input[i] == ' ' || input[i] == '\t' || input[i] == '\n'))
-			i++;
-		if (input[i] == '|' || input[i] == '<' || input[i] == '>')
+		if (input[i] == '"')
 		{
-			type_operator(&item, input, i);
+			quotes++;
+			start = i;
+			i++;
+			while (input[i] && input[i] != '"')
+				i++;
+			if (input[i] == '"' && input[i + 1] && (input[i + 1] == ' ' || input[i + 1] == '\0'))
+			{
+				end = i;
+				item->next = malloc(sizeof(t_split));
+				if (!item->next)
+					return ;
+				printf("start - %d, end - %d \n", start, end);
+				ft_strcut(item->next, input, start, end);
+				item = item->next;
+				item->next = NULL;
+				i++;
+				quotes++;
+				continue ;
+			}
+			else
+			{
+				// while (input[i] && input[i] != ' ')
+				// 	i++;
+				// end = i;
+				// item->next = malloc(sizeof(t_split));
+				// if (!item->next)
+				// 	return ;
+				// printf("start - %d, end - %d \n", start, end);
+				// ft_strcut(item->next, input, start, end);
+				// item = item->next;
+				// item->next = NULL;
+				// i++;
+				// quotes++;
+				// continue ;
+			}
+		}
+		while (input[i] && (input[i] == ' ' || input[i] == '\t' || input[i] == '\n') && input[i] != '"')
+			i++;
+		if ((input[i] == '|' || input[i] == '<' || input[i] == '>') && (input[i] != '"'))
+		{
+			type_operator(&item, input, &i);
 			i++;
 			continue ;
 		}
 		start = i;
-		while (input[i] && input[i] != '|' && input[i] != '<' 
+		printf("stopy: %c\n", input[i]);
+		while (input[i] && input[i] != '"' && input[i] != '|' && input[i] != '<' 
 			&& input[i] != '>' && ((input[i] != ' ' && input[i] != '\t' && input[i] != '\n')))
 			i++;
+		if (input[i] == '"' && start == i)
+			continue ;
 		end = i - 1;
 		i--;
 		item->next = malloc(sizeof(t_split));
 		if (!item->next)
 			return ;
+		printf("start - %d, end - %d \n", start, end);
 		ft_strcut(item->next, input, start, end);
 		item = item->next;
 		item->next = NULL;
 		i++;
 	}
+	if (quotes % 2 != 0)
+		exit(1 && write(2, "Error\n", 6));
 	item = tmp->next;
 	free(tmp);
 	tmp = item;
-	while (tmp)
+	while (tmp && tmp->value)
 	{
 		printf("%s\n", tmp->value);
 		tmp = tmp->next;

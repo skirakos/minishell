@@ -1,10 +1,11 @@
 #include "minishell.h"
 
-int main(int argc, char **argv)
+int main(int argc, char **argv, char **env)
 {
 	char	*input = NULL;
 
 	(void)argv;
+
 	if (argc == 1)
 	{
 		while (1)
@@ -16,12 +17,12 @@ int main(int argc, char **argv)
 				break;
 			}
 			add_history(input);
-			tokenization(input);
+			tokenization(input, env);
 			free(input);
 		}
 	}
 	free(input);
 	printf("ahjksd\n");
 	//system("leaks minishell");
-	return (0);
+	 return (0);
 }

@@ -14,7 +14,10 @@ typedef	struct s_split
 	struct s_split	*next;
 }	t_split;
 
-void	tokenization(char *input);
+void	tokenization(char *input, char **env);
 t_split	*ft_lstnew(char *content, char *type);
-
+void	dollar(t_split	*item, char **env);
+char	*ft_substr(char *s, int start, int len);
+int		ft_strlen(char *str);
+int		check_key_in_env(char **env, char *key);
 #endif

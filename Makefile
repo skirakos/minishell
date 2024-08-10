@@ -13,7 +13,8 @@ LIBS = -lreadline -lncurses
 # Source files
 SRCS = minishell.c \
 		tokenization.c \
-		lst_utils.c
+		lst_utils.c \
+		
 
 # Object files
 OBJS = $(SRCS:.c=.o)

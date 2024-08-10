@@ -61,7 +61,7 @@ void	ft_strcut(t_split *item, char *input, int start, int end)
 	item->type = "word";
 }
 
-void	tokenization(char *input)
+void	tokenization(char *input, char **env)
 {
 	int		i;
 	int		start;
@@ -81,7 +81,8 @@ void	tokenization(char *input)
 		if (input[i] == '"')
 		{
 			quotes++;
-			start = i;
+			if (i > 0 && input[i - 1] == ' ')
+				start = i;
 			i++;
 			while (input[i] && input[i] != '"')
 				i++;
@@ -176,7 +177,7 @@ void	tokenization(char *input)
 		while (input[i] && input[i] != '"' && input[i] != '|' && input[i] != '<' 
 			&& input[i] != '>' && ((input[i] != ' ' && input[i] != '\t' && input[i] != '\n')))
 			i++;
-		if (input[i] == '"' && start == i)
+		if (input[i] == '"')
 			continue ;
 		end = i - 1;
 		i--;
@@ -200,4 +201,71 @@ void	tokenization(char *input)
 		printf("%s\n", tmp->value);
 		tmp = tmp->next;
 	}
+	dollar(item, env);
+}
+
+// char	*find_key(char *str)
+// {
+// 	int 	i;
+// 	char	*arr;
+
+// 	i = 0;
+// 	while (str[i] && ((str[i] >= 'a' && str[i] <= 'z') || (str[i] >= 'A' && str[i] <= 'Z') || (str[i] >= '0' && str[i] <= '9') || (str[i] == '_')))
+// 		i++;
+// 	arr = ft_substr(str, 0, i);
+// 	printf("%s\n", arr);
+// 	return (arr);
+// }
+void	dollar(t_split	*item, char **env)
+{
+	int		i;
+	char	*key;
+
+	while (item)
+	{
+		int	start;
+		i = 0;
+		printf("%s\n", item->value);
+		while (item->value[i])
+		{
+			if (item->value[i] == '$')
+			{
+				i++;
+				start = i;
+				while (item->value[i] && ((item->value[i] >= 'a' && item->value[i] <= 'z') || (item->value[i] >= 'A' && item->value[i] <= 'Z') || (item->value[i] >= '0' && item->value[i] <= '9') || (item->value[i] == '_')))
+					i++;
+				key = ft_substr(item->value, start, i - 1);
+				if (check_key_in_env(env, key) == 1)
+				{
+					printf("gtela\n");
+				}
+			}
+			else
+				i++;
+		}
+		item = item->next;
+	}
+}
+
+int	check_key_in_env(char **env, char *key)
+{
+	int		i;
+	int		j;
+
+	i = 0;
+	while (env[i])
+	{
+		j = 0;
+		while (env[i][j] && env[i][j] != '=')
+		{
+			if (env[i][j] == key[j])
+				j++;
+			else
+				break;
+		}
+		if (key[j] == '\0' && env[i][j] == '=')
+			return (1);
+		i++;
+	}
+	return (-1);
 }

@@ -7,6 +7,8 @@
 # include <stdio.h>
 # include <unistd.h>
 
+typedef struct s_env	t_env;
+
 typedef	struct s_split
 {
 	char			*value;
@@ -14,10 +16,19 @@ typedef	struct s_split
 	struct s_split	*next;
 }	t_split;
 
-void	tokenization(char *input, char **env);
+typedef	struct s_env
+{
+	char	*var;
+	char	*value;
+	t_env	*next;
+}	t_env;
+
+void	tokenization(char *input, t_env	*env);
 t_split	*ft_lstnew(char *content, char *type);
-void	dollar(t_split	*item, char **env);
+void	dollar(t_split	*item, t_env *env);
 char	*ft_substr(char *s, int start, int len);
 int		ft_strlen(char *str);
-int		check_key_in_env(char **env, char *key);
+int		check_key_in_env(t_env *env, char *key);
+int		ft_strncmp(const char *s1, const char *s2, size_t n);
+
 #endif

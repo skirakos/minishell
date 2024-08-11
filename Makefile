@@ -14,8 +14,8 @@ LIBS = -lreadline -lncurses
 SRCS = minishell.c \
 		tokenization.c \
 		lst_utils.c \
+		utils.c
 		
-
 # Object files
 OBJS = $(SRCS:.c=.o)
 

@@ -57,16 +57,16 @@ void	ft_strcut(t_split *item, char *input, int start, int end)
 		start++;
 	}
 	item->value[i] = '\0';
-	//printf("%s\n", item->value);
 	item->type = "word";
 }
 
-void	tokenization(char *input, char **env)
+void	tokenization(char *input, t_env	*env)
 {
 	int		i;
 	int		start;
 	int		end;
 	int		quotes;
+	int		quote;
 	t_split	*item;
 	t_split	*tmp;
 
@@ -76,24 +76,23 @@ void	tokenization(char *input, char **env)
 	tmp = item;
 	i = 0;
 	quotes = 0;
+	quote = 0;
 	while (input[i])
 	{
 		if (input[i] == '"')
 		{
 			quotes++;
-			if (i > 0 && input[i - 1] == ' ')
+			if ((i > 0 && input[i - 1] == ' ') || (input[i] == '"' && i == 0))
 				start = i;
 			i++;
 			while (input[i] && input[i] != '"')
 				i++;
 			if (input[i] == '"' && (quotes % 2) == 1 && input[i + 1] && (input[i + 1] == ' ' || input[i + 1] == '\0'))
 			{
-				printf("bebebebe\n");
 				end = i;
 				item->next = malloc(sizeof(t_split));
 				if (!item->next)
 					return ;
-				printf("start - %d, end - %d \n", start, end);
 				ft_strcut(item->next, input, start, end);
 				item = item->next;
 				item->next = NULL;
@@ -106,7 +105,6 @@ void	tokenization(char *input, char **env)
 				quotes++;
 				while (input[i])
 				{
-					printf("%d\n", quotes);
 					while (input[i] && input[i] != ' ' && (quotes % 2) == 0)
 					{
 						i++;
@@ -117,10 +115,8 @@ void	tokenization(char *input, char **env)
 							quotes++;
 						}
 					}
-					printf("%d\n", quotes);
 					while (input[i] && input[i] != '"' && (quotes % 2) == 1)
 					{
-						printf("%d ----> %c\n", i,input[i]);
 						i++;
 						if (input[i] == '"')
 						{
@@ -128,13 +124,15 @@ void	tokenization(char *input, char **env)
 							quotes++;
 						}
 					}
-						printf("%d ----> %c\n", i,input[i]);
-					printf("%d\n", quotes);
+					if (input[i] == '"' && input[i])
+					{
+						i++;
+						quotes++;
+					}
 					end = i;
 					while (input[i] && input[i] != ' ' && (quotes % 2) != 0)
 					{
 						i++;
-						printf("%d ----> %c\n", i,input[i]);
 						if (input[i] == '"')
 						{
 							i++;
@@ -148,7 +146,6 @@ void	tokenization(char *input, char **env)
 						item->next = malloc(sizeof(t_split));
 						if (!item->next)
 						return ;
-						printf("start - %d, end - %d \n", start, end);
 						ft_strcut(item->next, input, start, end);
 						item = item->next;
 						item->next = NULL;
@@ -173,7 +170,6 @@ void	tokenization(char *input, char **env)
 			continue ;
 		}
 		start = i;
-		printf("stopy: %c\n", input[i]);
 		while (input[i] && input[i] != '"' && input[i] != '|' && input[i] != '<' 
 			&& input[i] != '>' && ((input[i] != ' ' && input[i] != '\t' && input[i] != '\n')))
 			i++;
@@ -184,13 +180,11 @@ void	tokenization(char *input, char **env)
 		item->next = malloc(sizeof(t_split));
 		if (!item->next)
 			return ;
-		printf("start - %d, end - %d \n", start, end);
 		ft_strcut(item->next, input, start, end);
 		item = item->next;
 		item->next = NULL;
 		i++;
 	}
-	printf("quote:%d\n", quotes);
 	if (quotes % 2 != 0)
 		exit(1 && write(2, "Error\n", 6));
 	item = tmp->next;
@@ -204,19 +198,7 @@ void	tokenization(char *input, char **env)
 	dollar(item, env);
 }
 
-// char	*find_key(char *str)
-// {
-// 	int 	i;
-// 	char	*arr;
-
-// 	i = 0;
-// 	while (str[i] && ((str[i] >= 'a' && str[i] <= 'z') || (str[i] >= 'A' && str[i] <= 'Z') || (str[i] >= '0' && str[i] <= '9') || (str[i] == '_')))
-// 		i++;
-// 	arr = ft_substr(str, 0, i);
-// 	printf("%s\n", arr);
-// 	return (arr);
-// }
-void	dollar(t_split	*item, char **env)
+void	dollar(t_split	*item, t_env *env)
 {
 	int		i;
 	char	*key;
@@ -225,7 +207,6 @@ void	dollar(t_split	*item, char **env)
 	{
 		int	start;
 		i = 0;
-		printf("%s\n", item->value);
 		while (item->value[i])
 		{
 			if (item->value[i] == '$')
@@ -247,25 +228,19 @@ void	dollar(t_split	*item, char **env)
 	}
 }
 
-int	check_key_in_env(char **env, char *key)
+int	check_key_in_env(t_env *env, char *key)
 {
 	int		i;
-	int		j;
 
 	i = 0;
-	while (env[i])
+	while (env)
 	{
-		j = 0;
-		while (env[i][j] && env[i][j] != '=')
+		if (!ft_strncmp(env->var, key, ft_strlen(env->var)))
 		{
-			if (env[i][j] == key[j])
-				j++;
-			else
-				break;
-		}
-		if (key[j] == '\0' && env[i][j] == '=')
+			printf("%s\n", env->value);
 			return (1);
-		i++;
+		}
+		env = env->next;
 	}
 	return (-1);
 }

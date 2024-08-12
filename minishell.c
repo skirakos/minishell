@@ -53,7 +53,7 @@ t_env	*env_copy(char **env)
 			j++;
 		if (env[i][j] == '=')
 		{
-			//printf("%d\n", j);
+			//...printf("%d\n", j);
 			copy->var = (char *)malloc(sizeof(char) * (j + 1));
 			if (!copy->var)
 				return (NULL);

@@ -93,7 +93,7 @@ int main(int argc, char **argv, char **env)
 		while (1)
 		{
 			input = readline("MINISHELL GJUK: ");
-			if (input == '\0')
+			if (input == NULL)
 			{
 				free(input);
 				break;

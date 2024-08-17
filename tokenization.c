@@ -40,7 +40,7 @@ void	type_operator(t_split **item, char *input, int *i)
 			(*item)->type = "inredir";
 		}
 	}
-	printf("index after operation: %d\n", *i);
+	//printf("index after operation: %d\n", *i);
 	// if (input[*i + 1] && input[*i + 1] == ' ')
 	//(*i)++;
 	(*item)->next = NULL;
@@ -86,28 +86,29 @@ void	tokenization(char *input, t_env	*env)
 	{
 		if (input[i] == '"' || input[i] == 39)
 		{
+			//printf("hello\n");
 			if (i == 0 || (i > 0 && input[i - 1] == ' '))
 				start = i;
 			current_quote = input[i];
 			i++;
 			while (input[i] && input[i] != current_quote)
 				i++;
-			//printf("%d %d\n", i, start);
 			if (input[i] != current_quote)
 			{
 				exit(1 && write(2, "Error1\n", 7));
 			}
-			if (input[i] == current_quote && (input[i + 1]== '\0' || input[i + 1] == ' '))
+			if (input[i] == current_quote && (input[i + 1]== '\0' || input[i + 1] == ' ' || input[i + 1] == '|' || input[i + 1] == '<' || input[i + 1] == '>'))
 			{
 				end = i;
 				item->next = malloc(sizeof(t_split));
 				if (!item->next)
 					return ;
 				ft_strcut(item->next, input, start, end);
+				start = end+2;
 				item = item->next;
 				item->next = NULL;
 				i++;
-				printf("%c\n", input[i]);
+				//printf("%c\n", input[i]);
 				continue ;
 				
 			}
@@ -121,15 +122,12 @@ void	tokenization(char *input, t_env	*env)
 			i++;
 		if ((input[i] == '|' || input[i] == '<' || input[i] == '>') && (input[i] != '"'))
 		{
-			//printf("a\n");
-			printf("2 index before operation: %d\n", i);
+			//printf("index: %d\n", i);
 			type_operator(&item, input, &i);
-			printf("2 index after operation: %d\n", i);
-			//printf("b\n");
 			i++;
 			continue ;
 		}
-		if (i == 0 || (i > 0 && input[i - 1] == ' '))
+		if (i == 0 || (i > 0 && (input[i - 1] == ' ' || input[i - 1] == '|' || input[i - 1] == '>' || input[i - 1] == '<')))
 			start = i;
 		while (input[i] && !(input[i] == '"' || input[i] == 39) && input[i] != '|' && input[i] != '<' 
 			&& input[i] != '>' && ((input[i] != ' ' && input[i] != '\t' && input[i] != '\n')))
@@ -192,9 +190,6 @@ void	dollar(t_split	*item, t_env *env)
 
 int	check_key_in_env(t_env *env, char *key)
 {
-	int		i;
-
-	i = 0;
 	while (env)
 	{
 		if (!ft_strncmp(env->var, key, ft_strlen(env->var)))

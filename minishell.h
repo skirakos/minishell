@@ -28,7 +28,7 @@ t_split	*ft_lstnew(char *content, char *type);
 void	dollar(t_split	*item, t_env *env);
 char	*ft_substr(char *s, int start, int len);
 int		ft_strlen(char *str);
-int		check_key_in_env(t_env *env, char *key);
+int		check_key_in_env(t_env *env, char *key, t_split *item);
 int		ft_strncmp(const char *s1, const char *s2, size_t n);
 
 #endif

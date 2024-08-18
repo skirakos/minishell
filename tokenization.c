@@ -8,7 +8,6 @@ void	type_operator(t_split **item, char *input, int *i)
 	(*item) = (*item)->next;
 	if (input[*i] == '|')
 	{
-		//printf("b\n");
 		(*item)->value = "|";
 		(*item)->type = "pipe";
 	}
@@ -40,9 +39,6 @@ void	type_operator(t_split **item, char *input, int *i)
 			(*item)->type = "inredir";
 		}
 	}
-	//printf("index after operation: %d\n", *i);
-	// if (input[*i + 1] && input[*i + 1] == ' ')
-	//(*i)++;
 	(*item)->next = NULL;
 }
 
@@ -51,11 +47,13 @@ void	ft_strcut(t_split *item, char *input, int start, int end)
 	int	i;
 
 	i = 0;
-	printf("start: %d, end: %d\n", start, end);
-	printf("allocation size: %d\n", end - start + 2);
 	item->value = malloc(end - start + 2);
 	if (!item->value)
 		return ;
+	// if (input[start] == '$')
+	// {
+	// 	start++;
+	// }
 	while (input[i] && start <= end)
 	{
 		item->value[i] = input[start];
@@ -84,9 +82,49 @@ void	tokenization(char *input, t_env	*env)
 	start = 0;
 	while (input[i])
 	{
+		if (input[i] == '$')
+		{
+			start = i;
+			printf("start: %d\n", start);
+			i++;
+			while (input[i] && (input[i] != ' ' || input[i] != '\0'))
+			{
+				i++;
+			}
+			end = i;
+			printf("end: %d\n", end);
+			item->next = malloc(sizeof(t_split));
+			if (!item->next)
+				return ;
+			ft_strcut(item->next, input, start, end);
+			//printf("%s\n", item->next->value);
+			start = end + 1;
+			item = item->next;
+			item->next = NULL;
+			i++;
+			continue ;
+		}
 		if (input[i] == '"' || input[i] == 39)
 		{
-			//printf("hello\n");
+			// if (input[i] == '$')
+			// {
+			// 	start = i;
+			// 	i++;
+			// 	while (input[i] != ' ' || input[i] != '"' || input[i] != 39 || input[i] != '\0')
+			// 	{
+			// 		i++;
+			// 	}
+			// 	end = i;
+			// 	item->next = malloc(sizeof(t_split));
+			// 	if (!item->next)
+			// 		return ;
+			// 	ft_strcut(item->next, input, start, end);
+			// 	start = end + 1;
+			// 	item = item->next;
+			// 	item->next = NULL;
+			// 	i++;
+			// 	continue ;
+			// }
 			if (i == 0 || (i > 0 && input[i - 1] == ' '))
 				start = i;
 			current_quote = input[i];
@@ -108,7 +146,6 @@ void	tokenization(char *input, t_env	*env)
 				item = item->next;
 				item->next = NULL;
 				i++;
-				//printf("%c\n", input[i]);
 				continue ;
 				
 			}
@@ -118,13 +155,14 @@ void	tokenization(char *input, t_env	*env)
 				continue ;
 			}
 		}
+		printf("hi\n");
 		while (input[i] && (input[i] == ' ' || input[i] == '\t' || input[i] == '\n'))
 			i++;
-		if ((input[i] == '|' || input[i] == '<' || input[i] == '>') && (input[i] != '"'))
+		if ((input[i] == '|' || input[i] == '<' || input[i] == '>'))
 		{
-			//printf("index: %d\n", i);
 			type_operator(&item, input, &i);
 			i++;
+			start++;
 			continue ;
 		}
 		if (i == 0 || (i > 0 && (input[i - 1] == ' ' || input[i - 1] == '|' || input[i - 1] == '>' || input[i - 1] == '<')))
@@ -150,12 +188,12 @@ void	tokenization(char *input, t_env	*env)
 	item = tmp->next;
 	free(tmp);
 	tmp = item;
+	dollar(item, env);
 	while (tmp && tmp->value)
 	{
 		printf("%s\n", tmp->value);
 		tmp = tmp->next;
 	}
-	dollar(item, env);
 }
 
 void	dollar(t_split	*item, t_env *env)
@@ -176,9 +214,11 @@ void	dollar(t_split	*item, t_env *env)
 				while (item->value[i] && ((item->value[i] >= 'a' && item->value[i] <= 'z') || (item->value[i] >= 'A' && item->value[i] <= 'Z') || (item->value[i] >= '0' && item->value[i] <= '9') || (item->value[i] == '_')))
 					i++;
 				key = ft_substr(item->value, start, i - 1);
-				if (check_key_in_env(env, key) == 1)
+				if (check_key_in_env(env, key, item) == 1)
 				{
-					printf("gtela\n");
+					//item->value = env->value;
+					//printf("item->value: %s \n", item->value);
+					//printf("gtela\n");
 				}
 			}
 			else
@@ -186,18 +226,20 @@ void	dollar(t_split	*item, t_env *env)
 		}
 		item = item->next;
 	}
+	
 }
 
-int	check_key_in_env(t_env *env, char *key)
+int	check_key_in_env(t_env *env, char *key, t_split *item)
 {
 	while (env)
 	{
 		if (!ft_strncmp(env->var, key, ft_strlen(env->var)))
 		{
-			printf("%s\n", env->value);
+			item->value = env->value;
 			return (1);
 		}
 		env = env->next;
 	}
+	item->value = "";
 	return (-1);
 }

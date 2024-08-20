@@ -73,6 +73,7 @@ void	tokenization(char *input, t_env	*env)
 	t_split	*item;
 	t_split	*tmp;
 
+	(void)env;
 	item = ft_lstnew(NULL, NULL);
 	if (!item)
 		return ;
@@ -82,62 +83,55 @@ void	tokenization(char *input, t_env	*env)
 	start = 0;
 	while (input[i])
 	{
-		if (input[i] == '$')
+		if (input[i] == '$' && (i > 0 && (input[i - 1] != '"' && input[i - 1] != 39)))
 		{
 			start = i;
-			printf("start: %d\n", start);
+			printf("shit\n");
 			i++;
 			while (input[i] && (input[i] != ' ' || input[i] != '\0'))
 			{
 				i++;
 			}
-			end = i;
-			printf("end: %d\n", end);
+			end = i - 1;
+			i--;
 			item->next = malloc(sizeof(t_split));
 			if (!item->next)
 				return ;
 			ft_strcut(item->next, input, start, end);
 			//printf("%s\n", item->next->value);
-			start = end + 1;
+			start = end + 2;
 			item = item->next;
 			item->next = NULL;
 			i++;
+			//dollar(item, env);
 			continue ;
 		}
 		if (input[i] == '"' || input[i] == 39)
 		{
-			// if (input[i] == '$')
-			// {
-			// 	start = i;
-			// 	i++;
-			// 	while (input[i] != ' ' || input[i] != '"' || input[i] != 39 || input[i] != '\0')
-			// 	{
-			// 		i++;
-			// 	}
-			// 	end = i;
-			// 	item->next = malloc(sizeof(t_split));
-			// 	if (!item->next)
-			// 		return ;
-			// 	ft_strcut(item->next, input, start, end);
-			// 	start = end + 1;
-			// 	item = item->next;
-			// 	item->next = NULL;
-			// 	i++;
-			// 	continue ;
-			// }
+			printf("hellooo\n");
 			if (i == 0 || (i > 0 && input[i - 1] == ' '))
 				start = i;
 			current_quote = input[i];
 			i++;
+			//printf("startttt: %d\n", start);
 			while (input[i] && input[i] != current_quote)
 				i++;
+			//printf("iiii: %d\n", i);
 			if (input[i] != current_quote)
 			{
 				exit(1 && write(2, "Error1\n", 7));
 			}
-			if (input[i] == current_quote && (input[i + 1]== '\0' || input[i + 1] == ' ' || input[i + 1] == '|' || input[i + 1] == '<' || input[i + 1] == '>'))
+			if (input[i] == current_quote && (input[i + 1] == '\0' || input[i + 1] == ' ' || input[i + 1] == '|' || input[i + 1] == '<' || input[i + 1] == '>' || input[i + 1] == '$'))
 			{
+				if (input[i + 1] && input[i + 1] == '$')
+				{
+					printf("i: %d\n", i);
+					i++;
+					while (input[i] && input[i] != current_quote)
+						i++;
+				}
 				end = i;
+				printf("enddd: %d\n", end);
 				item->next = malloc(sizeof(t_split));
 				if (!item->next)
 					return ;
@@ -146,6 +140,7 @@ void	tokenization(char *input, t_env	*env)
 				item = item->next;
 				item->next = NULL;
 				i++;
+				//printf("i: %d\n", i);
 				continue ;
 				
 			}
@@ -155,7 +150,7 @@ void	tokenization(char *input, t_env	*env)
 				continue ;
 			}
 		}
-		printf("hi\n");
+		//printf("hi\n");
 		while (input[i] && (input[i] == ' ' || input[i] == '\t' || input[i] == '\n'))
 			i++;
 		if ((input[i] == '|' || input[i] == '<' || input[i] == '>'))
@@ -166,7 +161,10 @@ void	tokenization(char *input, t_env	*env)
 			continue ;
 		}
 		if (i == 0 || (i > 0 && (input[i - 1] == ' ' || input[i - 1] == '|' || input[i - 1] == '>' || input[i - 1] == '<')))
+		{
+			printf("aaa\n");
 			start = i;
+		}
 		while (input[i] && !(input[i] == '"' || input[i] == 39) && input[i] != '|' && input[i] != '<' 
 			&& input[i] != '>' && ((input[i] != ' ' && input[i] != '\t' && input[i] != '\n')))
 			i++;
@@ -188,7 +186,8 @@ void	tokenization(char *input, t_env	*env)
 	item = tmp->next;
 	free(tmp);
 	tmp = item;
-	dollar(item, env);
+	//dollar_sign()
+	//dollar(item, env);
 	while (tmp && tmp->value)
 	{
 		printf("%s\n", tmp->value);
@@ -209,6 +208,7 @@ void	dollar(t_split	*item, t_env *env)
 		{
 			if (item->value[i] == '$')
 			{
+				//printf("value[i] %c", item->value[i]);
 				i++;
 				start = i;
 				while (item->value[i] && ((item->value[i] >= 'a' && item->value[i] <= 'z') || (item->value[i] >= 'A' && item->value[i] <= 'Z') || (item->value[i] >= '0' && item->value[i] <= '9') || (item->value[i] == '_')))
@@ -216,9 +216,12 @@ void	dollar(t_split	*item, t_env *env)
 				key = ft_substr(item->value, start, i - 1);
 				if (check_key_in_env(env, key, item) == 1)
 				{
-					//item->value = env->value;
-					//printf("item->value: %s \n", item->value);
-					//printf("gtela\n");
+					
+				}
+				else
+				{
+					item->value = "";
+					break;
 				}
 			}
 			else

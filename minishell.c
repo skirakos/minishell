@@ -68,6 +68,7 @@ t_env	*env_copy(char **env)
 		}
 		j++;
 		get_value(&copy, env, i, &j);
+		//printf("skjhfjks\n");
 		i++;
 	}
 	copy = tmp->next;
@@ -85,11 +86,6 @@ int main(int argc, char **argv, char **env)
 	if (argc == 1)
 	{
 		fake_env = env_copy(env);
-		// while (fake_env)
-		// {
-		// 	printf("%s --- %s\n", fake_env->var, fake_env->value);
-		// 	fake_env = fake_env->next;
-		// }
 		while (1)
 		{
 			input = readline("MINISHELL GJUK: ");
@@ -98,11 +94,15 @@ int main(int argc, char **argv, char **env)
 				free(input);
 				break;
 			}
-			add_history(input);
-			tokenization(input, fake_env);
-			free(input);
+			else
+			{
+				add_history(input);
+				tokenization(input, fake_env);
+				free(input);
+			}
 		}
 	}
-	free(input);
+	if (input)
+		free(input);
 	return (0);
 }

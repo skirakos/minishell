@@ -1,5 +1,30 @@
 #include "minishell.h"
 
+int	check_quotes_for_dollar(char *value, int index)
+{
+	int		start;
+	int		end;
+	char	current_quote;
+
+	start = index;
+	end = index;
+	while (value[start] && value[end])
+	{
+		while (start >= 0 && (value[start] != '"' || value[start] != 39))
+			start--;
+		if (start == -1)
+			current_quote = value[0];
+		current_quote = value[start];
+		if (value[start] != '"' || value[start] != 39)
+			return (0);
+		while (value[end] && (value[end] != current_quote))
+			end++;
+		if (value[end] == '\0')
+			return (0);
+		current_quote = value[end];
+		
+	}
+}
 char	*get_from_env(t_env *env, char *key)
 {
 	char	*res;
@@ -47,20 +72,21 @@ void	dollar_sign(t_split *item, t_env *env)
 		i = 0;
 		while (item->value[i])
 		{
-			printf("first i: %d\n", i);
-			printf("value[i]: %c\n", item->value[i]);
+			// printf("first i: %d\n", i);
+			// printf("value[i]: %c\n", item->value[i]);
 			while (item->value[i] && (item->value[i] != '$' && item->value[i] != '\0'))
 				i++;
 			if (item->value[i] == '\0')
 				break;
 			if (item->value[i] && item->value[i] == '$')
 			{
+				check_quotes_for_dollar(item->value, i);
 				flag = 1;
 				i++;
 				start = i;
 				before_key = ft_substr(item->value, 0, start - 1);
 				printf("before_key: %s\n", before_key);
-				while (item->value[i] && (item->value[i] != ' ' && item->value[i] != '"' && item->value[i] != 39 && item->value[i] != '>' && item->value[i] != '<' && item->value[i] != '>' && item->value[i] != '\0'))
+				while (item->value[i] && (item->value[i] != ' ' && item->value[i] != '$' && item->value[i] != '"' && item->value[i] != 39 && item->value[i] != '>' && item->value[i] != '<' && item->value[i] != '>' && item->value[i] != '\0'))
 					i++;
 				end = i - 1;
 				printf("start:  %d ----- end:  %d\n", start, end);
@@ -72,11 +98,8 @@ void	dollar_sign(t_split *item, t_env *env)
 				printf("after_key: %s\n", after_key);
 				if (check_key_in_env(env, key, item) == 1)
 				{
-					
-					printf("get_from_env\n");
 					dollar_value = get_from_env(env, key);
 					printf("dollar value: %s\n", dollar_value);
-					printf("get_from_env\n");
 					new_value = ft_strjoin(before_key, dollar_value);
 					new_value = ft_strjoin(new_value, after_key);
 				}
@@ -85,7 +108,6 @@ void	dollar_sign(t_split *item, t_env *env)
 					new_value = ft_strjoin(before_key, after_key);
 				}
 			}
-			// if (item->value[i] != '\0')
 			if (flag == 1)
 			{
 				if (new_value[0] == '\0')
@@ -95,14 +117,12 @@ void	dollar_sign(t_split *item, t_env *env)
 					i = 0;
 					continue ;
 				}
-				printf("asvzdv s\n");
-				//printf("new value: %s\n", new_value);
 				free(item->value);
 				item->value = malloc(ft_strlen(new_value) + 1);
 				if (!item->value)
 					return ;
 				int j = 0;
-				printf("new value: %s\n", new_value);
+				//printf("new value: %s\n", new_value);
 				while (item->value[j] && new_value[j])
 				{
 					item->value[j] = new_value[j];
@@ -111,7 +131,7 @@ void	dollar_sign(t_split *item, t_env *env)
 				item->value[j] = '\0';
 				flag = 0;
 			}
-			printf("after first iteration: %s ---- %d\n", item->value, i);
+			//printf("after first iteration: %s ---- %d\n", item->value, i);
 			i++;
 		}
 		
@@ -197,27 +217,27 @@ void	tokenization(char *input, t_env	*env)
 	start = 0;
 	while (input[i])
 	{
-		if (input[i] == '$' && (i > 0 && (input[i - 1] != '"' && input[i - 1] != 39)))
-		{
-			start = i;
-			printf("shit\n");
-			i++;
-			while (input[i] && (input[i] != ' ' || input[i] != '\0'))
-			{
-				i++;
-			}
-			end = i - 1;
-			i--;
-			item->next = malloc(sizeof(t_split));
-			if (!item->next)
-				return ;
-			ft_strcut(item->next, input, start, end);
-			start = end + 2;
-			item = item->next;
-			item->next = NULL;
-			i++;
-			continue ;
-		}
+		// if (input[i] == '$' && (i > 0 && (input[i - 1] != '"' && input[i - 1] != 39)))
+		// {
+		// 	start = i;
+		// 	printf("shit\n");
+		// 	i++;
+		// 	while (input[i] && (input[i] != ' ' || input[i] != '\0'))
+		// 	{
+		// 		i++;
+		// 	}
+		// 	end = i - 1;
+		// 	i--;
+		// 	item->next = malloc(sizeof(t_split));
+		// 	if (!item->next)
+		// 		return ;
+		// 	ft_strcut(item->next, input, start, end);
+		// 	start = end + 2;
+		// 	item = item->next;
+		// 	item->next = NULL;
+		// 	i++;
+		// 	continue ;
+		// }
 		if (input[i] == '"' || input[i] == 39)
 		{
 			if (i == 0 || (i > 0 && input[i - 1] == ' '))
@@ -347,7 +367,6 @@ int	check_key_in_env(t_env *env, char *key, t_split *item)
 				item->value[i] = env->value[i];
 				i++;
 			}
-			printf("aaaa\n");
 			printf("check_key_in_env: %s\n", item->value);
 			return (1);
 		}

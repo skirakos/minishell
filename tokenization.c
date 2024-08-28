@@ -1,30 +1,5 @@
 #include "minishell.h"
 
-int	check_quotes_for_dollar(char *value, int index)
-{
-	int		start;
-	int		end;
-	char	current_quote;
-
-	start = index;
-	end = index;
-	while (value[start] && value[end])
-	{
-		while (start >= 0 && (value[start] != '"' || value[start] != 39))
-			start--;
-		if (start == -1)
-			current_quote = value[0];
-		current_quote = value[start];
-		if (value[start] != '"' || value[start] != 39)
-			return (0);
-		while (value[end] && (value[end] != current_quote))
-			end++;
-		if (value[end] == '\0')
-			return (0);
-		current_quote = value[end];
-		
-	}
-}
 char	*get_from_env(t_env *env, char *key)
 {
 	char	*res;
@@ -50,91 +25,71 @@ char	*get_from_env(t_env *env, char *key)
 	}
 	return (NULL);
 }
-void	dollar_sign(t_split *item, t_env *env)
+char	*merge(char *before_key, char *dollar_value, char *after_key)
 {
-	int		i;
-	int		flag;
-	int		start;
-	int		end;
+	char	*tmp;
+	char	*res;
+
+	tmp = ft_strjoin(before_key, dollar_value);
+	free(before_key);
+	free(dollar_value);
+	res = ft_strjoin(tmp, after_key);
+	free(tmp);
+	free(after_key);
+	return (res);
+}
+
+char	*sedastan(char *str, int *i, t_env *env, int end)
+{
 	char	*key;
 	char	*before_key;
 	char	*after_key;
 	char	*dollar_value;
-	char	*new_value;
-	t_split	*tmp;
+	int		start;
 
-	tmp = item;
-	start = 0;
-	end = 0;
-	flag = 0;
+	before_key = ft_substr(str, 0, *i);
+	start = ++(*i);
+	printf("before_key: %s\n", before_key);
+	while (str[*i] && (str[*i] != ' ' && str[*i] != '/' && str[*i] != '$' && str[*i] != '"' && str[*i] != 39 && str[*i] != '>' && str[*i] != '<' && str[*i] != '>' && str[*i] != '\0'))
+		(*i)++;
+	end = (*i) - 1;
+	printf("enddddd: %d\n", end);
+	key = ft_substr(str, start, end + 1);
+	printf("keeeeyyyy: %s\n", key);
+	printf("i: %d\n", *i);
+	after_key = ft_substr(str, end + 1, ft_strlen(str));
+	printf("after_key: %s\n", after_key);
+	dollar_value = get_from_env(env, key);
+	return (merge(before_key, dollar_value, after_key));
+}
+void	dollar_sign(t_split *item, t_env *env)
+{
+	char	*str;
+	int		i;
+	int		is_dquote;
+	int		is_squote;	
+	
+	i = 0;
+	is_dquote = 0;
+	is_squote = 0;
 	while (item && item->value)
 	{
 		i = 0;
-		while (item->value[i])
+		str = item->value;
+		while (str && str[i] != '\0')
 		{
-			// printf("first i: %d\n", i);
-			// printf("value[i]: %c\n", item->value[i]);
-			while (item->value[i] && (item->value[i] != '$' && item->value[i] != '\0'))
-				i++;
-			if (item->value[i] == '\0')
-				break;
-			if (item->value[i] && item->value[i] == '$')
+			if (is_squote == 0 && str[i] == '\"')
+				is_dquote = !is_dquote;
+			if (is_dquote == 0 && str[i] == '\'')
+				is_squote = !is_squote;
+			if (is_squote == 0 && str[i] == '$')
 			{
-				check_quotes_for_dollar(item->value, i);
-				flag = 1;
-				i++;
-				start = i;
-				before_key = ft_substr(item->value, 0, start - 1);
-				printf("before_key: %s\n", before_key);
-				while (item->value[i] && (item->value[i] != ' ' && item->value[i] != '$' && item->value[i] != '"' && item->value[i] != 39 && item->value[i] != '>' && item->value[i] != '<' && item->value[i] != '>' && item->value[i] != '\0'))
-					i++;
-				end = i - 1;
-				printf("start:  %d ----- end:  %d\n", start, end);
-				key = ft_substr(item->value, start, end + 1);
-				printf("keeeeyyyy: %s\n", key);
-				printf("i: %d\n", i);
-				//printf("start:  %d ----- end:  %d\n", end + ft_strlen(key), ft_strlen(item->value) - 1);
-				after_key = ft_substr(item->value, end + 1, ft_strlen(item->value));
-				printf("after_key: %s\n", after_key);
-				if (check_key_in_env(env, key, item) == 1)
-				{
-					dollar_value = get_from_env(env, key);
-					printf("dollar value: %s\n", dollar_value);
-					new_value = ft_strjoin(before_key, dollar_value);
-					new_value = ft_strjoin(new_value, after_key);
-				}
-				else
-				{
-					new_value = ft_strjoin(before_key, after_key);
-				}
+				str = sedastan(str, &i, env, 0);
+				continue ;
 			}
-			if (flag == 1)
-			{
-				if (new_value[0] == '\0')
-				{
-					free(item->value);
-					item->value = new_value;
-					i = 0;
-					continue ;
-				}
-				free(item->value);
-				item->value = malloc(ft_strlen(new_value) + 1);
-				if (!item->value)
-					return ;
-				int j = 0;
-				//printf("new value: %s\n", new_value);
-				while (item->value[j] && new_value[j])
-				{
-					item->value[j] = new_value[j];
-					j++;
-				}
-				item->value[j] = '\0';
-				flag = 0;
-			}
-			//printf("after first iteration: %s ---- %d\n", item->value, i);
 			i++;
 		}
-		
+		item->value = str;
 		item = item->next;
 	}
 }
@@ -217,27 +172,6 @@ void	tokenization(char *input, t_env	*env)
 	start = 0;
 	while (input[i])
 	{
-		// if (input[i] == '$' && (i > 0 && (input[i - 1] != '"' && input[i - 1] != 39)))
-		// {
-		// 	start = i;
-		// 	printf("shit\n");
-		// 	i++;
-		// 	while (input[i] && (input[i] != ' ' || input[i] != '\0'))
-		// 	{
-		// 		i++;
-		// 	}
-		// 	end = i - 1;
-		// 	i--;
-		// 	item->next = malloc(sizeof(t_split));
-		// 	if (!item->next)
-		// 		return ;
-		// 	ft_strcut(item->next, input, start, end);
-		// 	start = end + 2;
-		// 	item = item->next;
-		// 	item->next = NULL;
-		// 	i++;
-		// 	continue ;
-		// }
 		if (input[i] == '"' || input[i] == 39)
 		{
 			if (i == 0 || (i > 0 && input[i - 1] == ' '))
@@ -246,9 +180,9 @@ void	tokenization(char *input, t_env	*env)
 			i++;
 			while (input[i] && input[i] != current_quote)
 				i++;
-			if (input[i] != current_quote)
+			if (input[i] != current_quote && input[i] != '\0')
 			{
-				exit(1 && write(2, "Error1\n", 7));
+				exit(1 && write(2, "Error4\n", 7));
 			}
 			if (input[i] == current_quote && (input[i + 1] == '\0' || input[i + 1] == ' ' || input[i + 1] == '|' || input[i + 1] == '<' || input[i + 1] == '>' || input[i + 1] == '$'))
 			{

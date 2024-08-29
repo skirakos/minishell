@@ -25,6 +25,64 @@ char	*get_from_env(t_env *env, char *key)
 	}
 	return (NULL);
 }
+void	quote_remover_continue(char *value, int start, int end)
+{
+	int	i;
+	int	j;
+	char	*str;
+
+	str = malloc(ft_strlen(value) - 1);
+	i = 0;
+	j = 0;
+	printf("quote_remover_continue\n");
+	while (value[i])
+	{
+		if (i != start && i != end)
+		{
+			str[j] = value[j];
+			j++;
+		}
+		i++;
+	}
+	str[j] = '\0';
+	free(value);
+	printf("quote_remover_str: %s\n", str);
+	value = str;
+}
+
+void	quote_remover(t_split *item)
+{
+	int		i;
+	int		startq;
+	int		endq;
+	char	curr;
+
+	startq = 0;
+	endq = 0;
+	printf("quote_remover\n");
+	while (item && item->value)
+	{
+		i = 0;
+		while (item->value[i])
+		{
+			if (item->value[i] == '"' || item->value[i] == 39)
+			{
+				curr = item->value[i];
+				startq = i;
+				i++;
+				while (item->value[i] && item->value[i] != curr)
+					i++;
+				endq = i;
+				printf("endq: %d\n", endq);
+				quote_remover_continue(item->value, startq, endq);
+				continue ;
+			}
+			i++;
+		}
+		item = item->next;
+	}
+}
+
 char	*merge(char *before_key, char *dollar_value, char *after_key)
 {
 	char	*tmp;
@@ -92,6 +150,7 @@ void	dollar_sign(t_split *item, t_env *env)
 		item->value = str;
 		item = item->next;
 	}
+	quote_remover(item);
 }
 
 void	type_operator(t_split **item, char *input, int *i)

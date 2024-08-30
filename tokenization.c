@@ -25,7 +25,7 @@ char	*get_from_env(t_env *env, char *key)
 	}
 	return (NULL);
 }
-void	quote_remover_continue(char *value, int start, int end)
+char	*quote_remover_continue(char *value, int start, int end)
 {
 	int	i;
 	int	j;
@@ -39,15 +39,14 @@ void	quote_remover_continue(char *value, int start, int end)
 	{
 		if (i != start && i != end)
 		{
-			str[j] = value[j];
+			str[j] = value[i];
 			j++;
 		}
 		i++;
 	}
 	str[j] = '\0';
-	free(value);
-	printf("quote_remover_str: %s\n", str);
-	value = str;
+	return (str);
+	printf("quote_remover_str?????: %s\n", str);
 }
 
 void	quote_remover(t_split *item)
@@ -59,7 +58,7 @@ void	quote_remover(t_split *item)
 
 	startq = 0;
 	endq = 0;
-	printf("quote_remover\n");
+	printf("charcharchar: %s\n", item->value);
 	while (item && item->value)
 	{
 		i = 0;
@@ -74,13 +73,14 @@ void	quote_remover(t_split *item)
 					i++;
 				endq = i;
 				printf("endq: %d\n", endq);
-				quote_remover_continue(item->value, startq, endq);
+				item->value = quote_remover_continue(item->value, startq, endq);
 				continue ;
 			}
 			i++;
 		}
 		item = item->next;
 	}
+	printf("quote_remoooooover\n");
 }
 
 char	*merge(char *before_key, char *dollar_value, char *after_key)
@@ -107,16 +107,16 @@ char	*sedastan(char *str, int *i, t_env *env, int end)
 
 	before_key = ft_substr(str, 0, *i);
 	start = ++(*i);
-	printf("before_key: %s\n", before_key);
+	//printf("before_key: %s\n", before_key);
 	while (str[*i] && (str[*i] != ' ' && str[*i] != '/' && str[*i] != '$' && str[*i] != '"' && str[*i] != 39 && str[*i] != '>' && str[*i] != '<' && str[*i] != '>' && str[*i] != '\0'))
 		(*i)++;
 	end = (*i) - 1;
-	printf("enddddd: %d\n", end);
+	//printf("enddddd: %d\n", end);
 	key = ft_substr(str, start, end + 1);
-	printf("keeeeyyyy: %s\n", key);
-	printf("i: %d\n", *i);
+	//printf("keeeeyyyy: %s\n", key);
+	//printf("i: %d\n", *i);
 	after_key = ft_substr(str, end + 1, ft_strlen(str));
-	printf("after_key: %s\n", after_key);
+	//printf("after_key: %s\n", after_key);
 	dollar_value = get_from_env(env, key);
 	return (merge(before_key, dollar_value, after_key));
 }
@@ -125,9 +125,11 @@ void	dollar_sign(t_split *item, t_env *env)
 	char	*str;
 	int		i;
 	int		is_dquote;
-	int		is_squote;	
+	int		is_squote;
+	t_split	*tmp;
 	
 	i = 0;
+	tmp = item;
 	is_dquote = 0;
 	is_squote = 0;
 	while (item && item->value)
@@ -150,7 +152,9 @@ void	dollar_sign(t_split *item, t_env *env)
 		item->value = str;
 		item = item->next;
 	}
+	item = tmp;
 	quote_remover(item);
+	item = tmp;
 }
 
 void	type_operator(t_split **item, char *input, int *i)
@@ -218,6 +222,7 @@ void	tokenization(char *input, t_env	*env)
 	int		i;
 	int		start;
 	int		end;
+	int		quote_count;
 	char	current_quote;
 	t_split	*item;
 	t_split	*tmp;
@@ -229,39 +234,41 @@ void	tokenization(char *input, t_env	*env)
 	i = 0;
 	end = 0;
 	start = 0;
+	quote_count = 0;
 	while (input[i])
 	{
 		if (input[i] == '"' || input[i] == 39)
 		{
+			quote_count++;
 			if (i == 0 || (i > 0 && input[i - 1] == ' '))
 				start = i;
 			current_quote = input[i];
 			i++;
+			printf("start: %d\n", start);
 			while (input[i] && input[i] != current_quote)
 				i++;
-			if (input[i] != current_quote && input[i] != '\0')
+			printf("index: %d\n", i);
+			if (input[i] != current_quote)
 			{
 				exit(1 && write(2, "Error4\n", 7));
 			}
-			if (input[i] == current_quote && (input[i + 1] == '\0' || input[i + 1] == ' ' || input[i + 1] == '|' || input[i + 1] == '<' || input[i + 1] == '>' || input[i + 1] == '$'))
+			quote_count++;
+			if (input[i] == current_quote && (input[i + 1] == '\0' || input[i + 1] == ' ' || input[i + 1] == '|' || input[i + 1] == '<' || input[i + 1] == '>'))
 			{
-				if (input[i + 1] && input[i + 1] == '$')
-				{
-					i++;
-					while (input[i] && input[i] != current_quote)
-						i++;
-				}
+				printf("quote_coubt: %d\n", quote_count);
+				printf("indexxxxx: %d\n", i);
 				end = i;
+				printf("end: %d\n", end);
 				item->next = malloc(sizeof(t_split));
 				if (!item->next)
 					return ;
 				ft_strcut(item->next, input, start, end);
-				start = end+2;
+				start = ++end;
+				current_quote = 0;
 				item = item->next;
 				item->next = NULL;
 				i++;
 				continue ;
-				
 			}
 			else if (input[i + 1] && (input[i + 1] != ' '))
 			{
@@ -285,6 +292,7 @@ void	tokenization(char *input, t_env	*env)
 			i++;
 		if (input[i] == '"' || input[i] == 39)
 		{
+			quote_count++;
 			current_quote = input[i];
 			continue ;
 		}
@@ -293,12 +301,14 @@ void	tokenization(char *input, t_env	*env)
 		item->next = malloc(sizeof(t_split));
 		if (!item->next)
 			return ;
+		printf("endddd: %d\n", end);
 		ft_strcut(item->next, input, start, end);
 		item = item->next;
 		item->next = NULL;
 		i++;
 	}
 	item = tmp->next;
+	current_quote = 0;
 	free(tmp);
 	tmp = item;
 	dollar_sign(item, env);

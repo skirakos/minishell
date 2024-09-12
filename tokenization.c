@@ -8,6 +8,7 @@ char	*get_from_env(t_env *env, char *key)
 	{
 		if (!ft_strncmp(env->var, key, ft_strlen(env->var)))
 		{
+			printf("hey\n");
 			res = (char *)malloc(sizeof(char *) * (ft_strlen(env->value) + 1));
 			if (!res)
 				return (NULL);
@@ -23,66 +24,107 @@ char	*get_from_env(t_env *env, char *key)
 		}
 		env = env->next;
 	}
+	printf("durs eka\n");
 	return (NULL);
 }
-char	*quote_remover_continue(char *value, int start, int end)
-{
-	int	i;
-	int	j;
-	char	*str;
+// char	*quote_remover_continue(char *value, int start, int end)
+// {
+// 	int	i;
+// 	int	j;
+// 	char	*str;
 
-	str = malloc(ft_strlen(value) - 1);
-	i = 0;
-	j = 0;
-	printf("quote_remover_continue\n");
-	while (value[i])
-	{
-		if (i != start && i != end)
-		{
-			str[j] = value[i];
-			j++;
-		}
-		i++;
-	}
-	str[j] = '\0';
-	return (str);
-	printf("quote_remover_str?????: %s\n", str);
-}
+// 	str = malloc(ft_strlen(value) - 1);
+// 	i = 0;
+// 	j = 0;
+// 	printf("quote_remover_continue\n");
+// 	while (value[i])
+// 	{
+// 		if (i != start && i != end)
+// 		{
+// 			str[j] = value[i];
+// 			j++;
+// 		}
+// 		i++;
+// 	}
+// 	str[j] = '\0';
+// 	return (str);
+// 	printf("quote_remover_str?????: %s\n", str);
+// }
 
-void	quote_remover(t_split *item)
-{
+// void	quote_remover(t_split *item)
+// {
+// 	int		i;
+// 	int		startq;
+// 	int		endq;
+// 	char	curr;
+
+// 	startq = 0;
+// 	endq = 0;
+// 	printf("charcharchar: %s\n", item->value);
+// 	while (item && item->value)
+// 	{
+// 		i = 0;
+// 		while (item->value[i])
+// 		{
+// 			if (item->value[i] == '"' || item->value[i] == 39)
+// 			{
+// 				curr = item->value[i];
+// 				startq = i;
+// 				i++;
+// 				while (item->value[i] && item->value[i] != curr)
+// 					i++;
+// 				endq = i;
+// 				printf("endq: %d\n", endq);
+// 				item->value = quote_remover_continue(item->value, startq, endq);
+// 				continue ;
+// 			}
+// 			i++;
+// 		}
+// 		item = item->next;
+// 	}
+// 	printf("quote_remoooooover\n");
+// }
+
+void quote_remover(t_split *item) {
+	int		len;
 	int		i;
-	int		startq;
-	int		endq;
-	char	curr;
+	int		j;
+	int		in_single_quote;
+	int		in_double_quote;
+	char	*result;
 
-	startq = 0;
-	endq = 0;
-	printf("charcharchar: %s\n", item->value);
-	while (item && item->value)
-	{
-		i = 0;
-		while (item->value[i])
-		{
-			if (item->value[i] == '"' || item->value[i] == 39)
-			{
-				curr = item->value[i];
-				startq = i;
-				i++;
-				while (item->value[i] && item->value[i] != curr)
-					i++;
-				endq = i;
-				printf("endq: %d\n", endq);
-				item->value = quote_remover_continue(item->value, startq, endq);
-				continue ;
-			}
-			i++;
-		}
-		item = item->next;
-	}
-	printf("quote_remoooooover\n");
+    while (item && item->value) {
+        len = ft_strlen(item->value);
+        result = malloc(len + 1);
+        if (!result)
+            return;
+        j = 0;
+        in_single_quote = 0;
+        in_double_quote = 0;
+        i = 0;
+        while (i < len) {
+			if (item->value[i] == '\'' && !in_double_quote) {
+                in_single_quote = !in_single_quote;
+            } else if (item->value[i] == '"' && !in_single_quote) {
+                in_double_quote = !in_double_quote;
+            } else {
+                result[j++] = item->value[i];
+            }
+            i++;
+        }
+        result[j] = '\0';
+        printf("Original: %s\n", item->value);
+        printf("Cleaned: %s\n", result);
+		printf("aaa: %s\n", item->value);
+        free(item->value);
+        item->value = malloc(ft_strlen(result) + 1);
+        if (item->value) {
+            ft_strcpy(item->value, result);
+        }
+        free(result);
+        item = item->next;
+    }
 }
-
 char	*merge(char *before_key, char *dollar_value, char *after_key)
 {
 	char	*tmp;
@@ -94,10 +136,11 @@ char	*merge(char *before_key, char *dollar_value, char *after_key)
 	res = ft_strjoin(tmp, after_key);
 	free(tmp);
 	free(after_key);
+	printf("res-->%s$\n",res);
 	return (res);
 }
 
-char	*sedastan(char *str, int *i, t_env *env, int end)
+char	*sedastan(char *str, int i, t_env *env, int end)
 {
 	char	*key;
 	char	*before_key;
@@ -105,19 +148,20 @@ char	*sedastan(char *str, int *i, t_env *env, int end)
 	char	*dollar_value;
 	int		start;
 
-	before_key = ft_substr(str, 0, *i);
-	start = ++(*i);
-	//printf("before_key: %s\n", before_key);
-	while (str[*i] && (str[*i] != ' ' && str[*i] != '/' && str[*i] != '$' && str[*i] != '"' && str[*i] != 39 && str[*i] != '>' && str[*i] != '<' && str[*i] != '>' && str[*i] != '\0'))
-		(*i)++;
-	end = (*i) - 1;
+	before_key = ft_substr(str, 0, i);
+	start = ++(i);
+	while (str[i] && (str[i] != ' ' && str[i] != '/' && str[i] != '$' && str[i] != '"' && str[i] != 39 && str[i] != '>' && str[i] != '<' && str[i] != '>' && str[i] != '\0'))
+		(i)++;
+	end = (i) - 1;
 	//printf("enddddd: %d\n", end);
 	key = ft_substr(str, start, end + 1);
-	//printf("keeeeyyyy: %s\n", key);
+	printf("keeeeyyyy: %s\n", key);
 	//printf("i: %d\n", *i);
 	after_key = ft_substr(str, end + 1, ft_strlen(str));
-	//printf("after_key: %s\n", after_key);
 	dollar_value = get_from_env(env, key);
+	printf("before_key: %s$\n", before_key);
+
+	printf("after_key: %s$\n", after_key);
 	return (merge(before_key, dollar_value, after_key));
 }
 void	dollar_sign(t_split *item, t_env *env)
@@ -144,7 +188,7 @@ void	dollar_sign(t_split *item, t_env *env)
 				is_squote = !is_squote;
 			if (is_squote == 0 && str[i] == '$')
 			{
-				str = sedastan(str, &i, env, 0);
+				str = sedastan(str, i, env, 0);
 				continue ;
 			}
 			i++;
@@ -165,20 +209,20 @@ void	type_operator(t_split **item, char *input, int *i)
 	(*item) = (*item)->next;
 	if (input[*i] == '|')
 	{
-		(*item)->value = "|";
+		(*item)->value = ft_strdup("|");
 		(*item)->type = "pipe";
 	}
 	else if (input[*i] == '<')
 	{
 		if (input[*i] && input[*i + 1] == '<')
 		{
-			(*item)->value = "<<";
+			(*item)->value = ft_strdup("<<");
 			(*item)->type = "heredoc";
 			(*i)++;
 		}
 		else
 		{
-			(*item)->value = "<";
+			(*item)->value = ft_strdup("<");
 			(*item)->type = "outredir";
 		}
 	}
@@ -186,13 +230,13 @@ void	type_operator(t_split **item, char *input, int *i)
 	{
 		if (input[*i] && input[*i + 1] == '>')
 		{
-			(*item)->value = ">>";
+			(*item)->value = ft_strdup(">>");
 			(*item)->type = "append";
 			(*i)++;
 		}
 		else
 		{
-			(*item)->value = ">";
+			(*item)->value = ft_strdup(">");
 			(*item)->type = "inredir";
 		}
 	}
@@ -282,7 +326,7 @@ void	tokenization(char *input, t_env	*env)
 		{
 			type_operator(&item, input, &i);
 			i++;
-			start++;
+			start = i;
 			continue ;
 		}
 		if (i == 0 || (i > 0 && (input[i - 1] == ' ' || input[i - 1] == '|' || input[i - 1] == '>' || input[i - 1] == '<')))
@@ -315,7 +359,7 @@ void	tokenization(char *input, t_env	*env)
 	i = 0;
 	while (tmp)
 	{
-		printf("%s\n", tmp->value);
+		printf("%s$\n", tmp->value);
 		tmp = tmp->next;
 	}
 }

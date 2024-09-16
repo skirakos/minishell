@@ -171,8 +171,10 @@ void	dollar_sign(t_split *item, t_env *env)
 	int		is_dquote;
 	int		is_squote;
 	t_split	*tmp;
+	t_split	*prev;
 	
 	i = 0;
+	prev = NULL;
 	tmp = item;
 	is_dquote = 0;
 	is_squote = 0;
@@ -186,7 +188,7 @@ void	dollar_sign(t_split *item, t_env *env)
 				is_dquote = !is_dquote;
 			if (is_dquote == 0 && str[i] == '\'')
 				is_squote = !is_squote;
-			if (is_squote == 0 && str[i] == '$')
+			if (is_squote == 0 && str[i] == '$' && (prev && prev->value != "<<"))
 			{
 				str = sedastan(str, i, env, 0);
 				continue ;
@@ -194,8 +196,11 @@ void	dollar_sign(t_split *item, t_env *env)
 			i++;
 		}
 		item->value = str;
+		prev = item;
 		item = item->next;
 	}
+	free(prev->value);
+	free(prev);
 	item = tmp;
 	quote_remover(item);
 	item = tmp;
@@ -259,6 +264,60 @@ void	ft_strcut(t_split *item, char *input, int start, int end)
 	}
 	item->value[i] = '\0';
 	item->type = "word";
+}
+t_split	*remove_empty_nodes(t_split *item)
+{
+	t_split	*tmp;
+	t_split	*start;
+
+	tmp = item;
+	start = item;
+	if (tmp->value == '\0' && tmp->next == NULL)
+	{
+		free(start->value);
+		free(start);
+		return (NULL);
+	}
+	else if (item->value == '\0')
+	{
+		start = item->next;
+		item = start;
+		free(tmp->value);
+		free(tmp);
+	}
+	while (item)
+	{
+		if (item->next && item->next->value == '\0')
+		{
+			tmp = item->next;
+			item = item->next->next;
+			free(tmp->value);
+			free(tmp);
+		}
+		item = item->next;
+	}
+	return (start);
+}
+
+int	check_operation(t_split *item)
+{
+	t_split	*tmp;
+	t_split	*prev;
+
+	prev = NULL;
+	tmp = item;
+	remove_empty_nodes(item);
+	item = tmp;
+	if (item && item->value = '|')
+		return (1); //error nery heto handle kanenq
+	while (item && item->value)
+	{
+		if (item->next && item->next->type == "pipe" && (item->type != "word" || (item->next->next && item->next->next->type != "word")))
+			return (1);
+		else if ((item->type == "heredoc" || item->type == "outredir" || item->type == "append" || item->type == "inredir") && (item->next == NULL || item->next->type != "word"))
+			return (1);
+	}//heredoc outredir append inredir
+	
 }
 
 void	tokenization(char *input, t_env	*env)
@@ -356,10 +415,12 @@ void	tokenization(char *input, t_env	*env)
 	free(tmp);
 	tmp = item;
 	dollar_sign(item, env);
+	//remove_empty_nodes(item);
+	check_operation(item);
 	i = 0;
 	while (tmp)
 	{
-		printf("%s$\n", tmp->value);
+		printf("%s$\n ----- type: %s", tmp->value, tmp->type);
 		tmp = tmp->next;
 	}
 }

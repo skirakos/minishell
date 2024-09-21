@@ -1,3 +1,5 @@
 SEDA:
 
 1. enum to do,for operators
+2. export(env)
+3. error handling

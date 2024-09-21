@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-t_split	*ft_lstnew(char *content, char *type)
+t_split	*ft_lstnew(char *content)
 {
 	t_split	*n;
 
@@ -8,7 +8,6 @@ t_split	*ft_lstnew(char *content, char *type)
 	if (!n)
 		return (NULL);
 	n->value = content;
-	n->type = type;
 	n->next = NULL;
 	return (n);
 }

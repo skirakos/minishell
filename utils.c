@@ -83,3 +83,38 @@ char	*ft_strdup(char *s1)
 	}
 	return (NULL);
 }
+
+int	ft_strcmp(const char *s1, const char *s2)
+{
+	unsigned int	i;
+	unsigned char	*str1;
+	unsigned char	*str2;
+
+	str1 = (unsigned char *)s1;
+	str2 = (unsigned char *)s2;
+	i = 0;
+
+	// Loop until one of the strings reaches its end (null terminator)
+	while (str1[i] != '\0' || str2[i] != '\0')
+	{
+		// If characters at the same position are not equal, return the difference
+		if (str1[i] != str2[i])
+			return (str1[i] - str2[i]);
+		i++;
+	}
+
+	// If we reach here, both strings are equal up to the point where they end
+	return (0);
+}
+
+int		matrix_len(char **matrix)
+{
+	int	i;
+
+	i = 0;
+	while (matrix[i])
+	{
+		i++;
+	}
+	return (i);
+}

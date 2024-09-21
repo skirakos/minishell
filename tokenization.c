@@ -188,65 +188,81 @@ void	dollar_sign(t_split *item, t_env *env)
 				is_dquote = !is_dquote;
 			if (is_dquote == 0 && str[i] == '\'')
 				is_squote = !is_squote;
-			if (is_squote == 0 && str[i] == '$' && (prev && prev->value != "<<"))
+			if (is_squote == 0 && str[i] == '$')
 			{
-				str = sedastan(str, i, env, 0);
-				continue ;
+				if (!prev || (prev && prev->type != HERE_DOC))
+				{
+					str = sedastan(str, i, env, 0);
+					continue ;
+				}
+				printf("ehhh: %s\n", prev->value);
 			}
 			i++;
 		}
+		printf("after sedastan\n");
+		//int j = 0;
 		item->value = str;
 		prev = item;
 		item = item->next;
 	}
-	free(prev->value);
-	free(prev);
 	item = tmp;
+	// if (prev)
+	// {
+	// 	free(prev->value);
+	// 	free(prev);
+	// }
 	quote_remover(item);
 	item = tmp;
 }
 
-void	type_operator(t_split **item, char *input, int *i)
+void type_operator(t_split **item, char *input, int *i)
 {
-	(*item)->next = malloc(sizeof(t_split));
-	if (!(*item)->next)
-		return ;
-	(*item) = (*item)->next;
-	if (input[*i] == '|')
-	{
-		(*item)->value = ft_strdup("|");
-		(*item)->type = "pipe";
-	}
-	else if (input[*i] == '<')
-	{
-		if (input[*i] && input[*i + 1] == '<')
-		{
-			(*item)->value = ft_strdup("<<");
-			(*item)->type = "heredoc";
-			(*i)++;
-		}
-		else
-		{
-			(*item)->value = ft_strdup("<");
-			(*item)->type = "outredir";
-		}
-	}
-	else if (input[*i] == '>')
-	{
-		if (input[*i] && input[*i + 1] == '>')
-		{
-			(*item)->value = ft_strdup(">>");
-			(*item)->type = "append";
-			(*i)++;
-		}
-		else
-		{
-			(*item)->value = ft_strdup(">");
-			(*item)->type = "inredir";
-		}
-	}
-	(*item)->next = NULL;
+    (*item)->next = malloc(sizeof(t_split));
+    if (!(*item)->next)
+        return;
+
+    (*item) = (*item)->next;
+    (*item)->next = NULL; // Initialize next pointer
+
+    switch (input[*i])
+    {
+        case '|':
+            (*item)->value = ft_strdup("|");
+            (*item)->type = S_PIPE;
+            break;
+        case '<':
+            if (input[*i + 1] == '<')
+            {
+                (*item)->value = ft_strdup("<<");
+                (*item)->type = HERE_DOC;
+                (*i)++;
+            }
+            else
+            {
+                (*item)->value = ft_strdup("<");
+                (*item)->type = IN_REDIR;
+            }
+            break;
+        case '>':
+            if (input[*i + 1] == '>')
+            {
+                (*item)->value = ft_strdup(">>");
+                (*item)->type = APPEND_REDIR;
+                (*i)++;
+            }
+            else
+            {
+                (*item)->value = ft_strdup(">");
+                (*item)->type = OUT_REDIR;
+            }
+            break;
+        default:
+            free((*item)->next);
+            (*item)->next = NULL;
+            return;
+    }
 }
+
 
 void	ft_strcut(t_split *item, char *input, int start, int end)
 {
@@ -263,13 +279,15 @@ void	ft_strcut(t_split *item, char *input, int start, int end)
 		start++;
 	}
 	item->value[i] = '\0';
-	item->type = "word";
+	item->type = WORD;
 }
 t_split	*remove_empty_nodes(t_split *item)
 {
 	t_split	*tmp;
 	t_split	*start;
 
+	if (!item)
+        return NULL;
 	tmp = item;
 	start = item;
 	if (tmp->value == '\0' && tmp->next == NULL)
@@ -299,26 +317,40 @@ t_split	*remove_empty_nodes(t_split *item)
 	return (start);
 }
 
-int	check_operation(t_split *item)
+int check_operation(t_split *item)
 {
-	t_split	*tmp;
-	t_split	*prev;
+    t_split *tmp;
+    t_split *prev;
 
-	prev = NULL;
-	tmp = item;
-	remove_empty_nodes(item);
-	item = tmp;
-	if (item && item->value = '|')
-		return (1); //error nery heto handle kanenq
-	while (item && item->value)
-	{
-		if (item->next && item->next->type == "pipe" && (item->type != "word" || (item->next->next && item->next->next->type != "word")))
-			return (1);
-		else if ((item->type == "heredoc" || item->type == "outredir" || item->type == "append" || item->type == "inredir") && (item->next == NULL || item->next->type != "word"))
-			return (1);
-	}//heredoc outredir append inredir
-	
+    prev = NULL;
+    tmp = item;
+    remove_empty_nodes(item);
+    item = tmp;
+
+    if (item && item->type == S_PIPE)
+        return (1); // Error handling
+    while (item && item->value)
+    {
+        if (item->next)
+        {
+            if (item->next->type == S_PIPE &&
+                (item->type != WORD || (item->next->next && item->next->next->type != WORD)))
+            {
+                return (1); // Error handling
+            }
+            else if ((item->type == HERE_DOC || item->type == IN_REDIR || item->type == OUT_REDIR ||
+                      item->type == APPEND_REDIR) &&
+                     (item->next == NULL || item->next->type != WORD))
+            {
+                return (1); // Error handling
+            }
+        }
+        item = item->next;
+    }
+
+    return (0); // No errors
 }
+
 
 void	tokenization(char *input, t_env	*env)
 {
@@ -329,8 +361,9 @@ void	tokenization(char *input, t_env	*env)
 	char	current_quote;
 	t_split	*item;
 	t_split	*tmp;
+	t_minishell *minishell;
 
-	item = ft_lstnew(NULL, NULL);
+	item = ft_lstnew(NULL);
 	if (!item)
 		return ;
 	tmp = item;
@@ -414,15 +447,23 @@ void	tokenization(char *input, t_env	*env)
 	current_quote = 0;
 	free(tmp);
 	tmp = item;
+	//printf("hmmmmm: %s$\n ----- type: %s", tmp->value, tmp->type);
 	dollar_sign(item, env);
 	//remove_empty_nodes(item);
 	check_operation(item);
+	minishell = malloc(sizeof(t_minishell));
+	if (!minishell)
+		return ;
+	minishell->tokens = tmp;
+	minishell->env = env;
+	built_in(minishell);
 	i = 0;
 	while (tmp)
 	{
-		printf("%s$\n ----- type: %s", tmp->value, tmp->type);
+		printf("%s\n", tmp->value);
 		tmp = tmp->next;
 	}
+	
 }
 
 void	dollar(t_split	*item, t_env *env)

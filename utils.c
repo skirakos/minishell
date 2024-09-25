@@ -15,7 +15,6 @@ int	ft_strncmp(const char *s1, const char *s2, size_t n)
 			return (str1[i] - str2[i]);
 		i++;
 	}
-	printf("gtcvtucvtu\n");
 	return (0);
 }
 
@@ -28,7 +27,6 @@ char	*ft_strjoin(char *s1, char *s2)
 	s = (char *)malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
 	if (!s)
 		return (NULL);
-	printf("oooo\n");
 	i = 0;
 	j = 0;
 	while (s1 && s1[i])
@@ -43,7 +41,6 @@ char	*ft_strjoin(char *s1, char *s2)
 		j++;
 	}
 	s[i] = '\0';
-	printf("heriqaaa\n");
 	return (s);
 }
 
@@ -93,17 +90,12 @@ int	ft_strcmp(const char *s1, const char *s2)
 	str1 = (unsigned char *)s1;
 	str2 = (unsigned char *)s2;
 	i = 0;
-
-	// Loop until one of the strings reaches its end (null terminator)
 	while (str1[i] != '\0' || str2[i] != '\0')
 	{
-		// If characters at the same position are not equal, return the difference
 		if (str1[i] != str2[i])
 			return (str1[i] - str2[i]);
 		i++;
 	}
-
-	// If we reach here, both strings are equal up to the point where they end
 	return (0);
 }
 
@@ -118,3 +110,17 @@ int		matrix_len(char **matrix)
 	}
 	return (i);
 }
+
+void	*free_matrix(char** matrix, int rows) {
+    int 	i;
+
+	i = 0;
+    while (i < rows)
+	{
+        free(matrix[i]);
+        i++;
+    }
+    free(matrix);
+	return (NULL);
+}
+

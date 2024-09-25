@@ -30,7 +30,6 @@ typedef enum e_token_type {
     APPEND_FILEOUT
 } t_token_type;
 
-
 typedef struct s_split {
     char 			*value;
     t_token_type	type;
@@ -64,5 +63,7 @@ char	*ft_strdup(char *s1);
 int		ft_strcmp(const char *s1, const char *s2);
 void	built_in(t_minishell *minishell);
 int		matrix_len(char **matrix);
+void	*free_matrix(char** matrix, int rows);
+char	**ft_split(char *str, char c);
 
 #endif

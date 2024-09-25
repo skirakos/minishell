@@ -115,7 +115,6 @@ void quote_remover(t_split *item) {
         result[j] = '\0';
         printf("Original: %s\n", item->value);
         printf("Cleaned: %s\n", result);
-		printf("aaa: %s\n", item->value);
         free(item->value);
         item->value = malloc(ft_strlen(result) + 1);
         if (item->value) {
@@ -195,11 +194,9 @@ void	dollar_sign(t_split *item, t_env *env)
 					str = sedastan(str, i, env, 0);
 					continue ;
 				}
-				printf("ehhh: %s\n", prev->value);
 			}
 			i++;
 		}
-		printf("after sedastan\n");
 		//int j = 0;
 		item->value = str;
 		prev = item;
@@ -380,10 +377,8 @@ void	tokenization(char *input, t_env	*env)
 				start = i;
 			current_quote = input[i];
 			i++;
-			printf("start: %d\n", start);
 			while (input[i] && input[i] != current_quote)
 				i++;
-			printf("index: %d\n", i);
 			if (input[i] != current_quote)
 			{
 				exit(1 && write(2, "Error4\n", 7));
@@ -391,10 +386,7 @@ void	tokenization(char *input, t_env	*env)
 			quote_count++;
 			if (input[i] == current_quote && (input[i + 1] == '\0' || input[i + 1] == ' ' || input[i + 1] == '|' || input[i + 1] == '<' || input[i + 1] == '>'))
 			{
-				printf("quote_coubt: %d\n", quote_count);
-				printf("indexxxxx: %d\n", i);
 				end = i;
-				printf("end: %d\n", end);
 				item->next = malloc(sizeof(t_split));
 				if (!item->next)
 					return ;
@@ -437,7 +429,7 @@ void	tokenization(char *input, t_env	*env)
 		item->next = malloc(sizeof(t_split));
 		if (!item->next)
 			return ;
-		printf("endddd: %d\n", end);
+		//printf("endddd: %d\n", end);
 		ft_strcut(item->next, input, start, end);
 		item = item->next;
 		item->next = NULL;

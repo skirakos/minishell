@@ -15,7 +15,8 @@ SRCS = minishell.c \
 		tokenization.c \
 		lst_utils.c \
 		utils.c \
-		built_in.c
+		built_in.c \
+		ft_split.c
 		
 # Object files
 OBJS = $(SRCS:.c=.o)

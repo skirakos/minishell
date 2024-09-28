@@ -9,7 +9,7 @@ t_split	*pre_execve(t_minishell *minishell)
 
 	tmp = minishell->tokens;
 	len = 0;
-	while (tmp && tmp->value && tmp->type == WORD && tmp->type != S_PIPE)
+	while (tmp && tmp->value && (tmp->type == WORD || tmp->type != S_PIPE))
 	{
 		len++;
 		tmp = tmp->next;
@@ -134,22 +134,25 @@ void	check_cmd(t_minishell *minishell)
 	i = 0;
 	while (path[i])
 	{
-		joined_path = ft_strjoin(path[i], "/");
-		tmp_join = joined_path;
-		joined_path = ft_strjoin(joined_path, minishell->cmd[0]);
-		printf("joined_path: %s\n", joined_path);
-		free(tmp_join);
-		if (access(joined_path, X_OK) == 0)
+		if (ft_strcmp(minishell->cmd[0], "echo") != 0 && ft_strcmp(minishell->cmd[0], "cd") != 0 && ft_strcmp(minishell->cmd[0], "pwd") != 0 && ft_strcmp(minishell->cmd[0], "export") != 0 && ft_strcmp(minishell->cmd[0], "unset") != 0 && ft_strcmp(minishell->cmd[0], "env") != 0 && ft_strcmp(minishell->cmd[0], "exit") != 0)
 		{
-			free(minishell->cmd[0]);
-			minishell->cmd[0] = ft_strdup(joined_path);
+			joined_path = ft_strjoin(path[i], "/");
+			tmp_join = joined_path;
+			joined_path = ft_strjoin(joined_path, minishell->cmd[0]);
+			printf("joined_path: %s\n", joined_path);
+			free(tmp_join);
+			if (access(joined_path, X_OK) == 0)
+			{
+				free(minishell->cmd[0]);
+				minishell->cmd[0] = ft_strdup(joined_path);
+				free(joined_path);
+				free_matrix(path, matrix_len(path));
+				minishell->env = tmp;
+				return ;
+			}
 			free(joined_path);
-			free_matrix(path, matrix_len(path));
-			minishell->env = tmp;
-			return ;
 		}
 		i++;
-		free(joined_path);
 	}
 	minishell->env = tmp;
 	free_matrix(path, matrix_len(path));
@@ -170,6 +173,32 @@ int	pipe_count(t_minishell *minishell)
 	minishell->tokens = tmp;
 	return (pipe_count);
 }
+int handle_redirection(t_split *tokens) {
+    int fd;
+    t_split *current;
+
+	current = tokens;
+	fd = -1;
+    while (current) {
+        if (current->type == IN_REDIR)
+		{
+            if (ft_strcmp(current->value, ">") == 0)
+                fd = open(current->next->value, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+			else if (ft_strcmp(current->value, ">>") == 0)
+                fd = open(current->next->value, O_WRONLY | O_CREAT | O_APPEND, 0644);
+            if (fd == -1) {
+                perror("open");
+                return -1;
+            }
+            dup2(fd, STDOUT_FILENO);
+            break;
+        }
+        current = current->next;
+    }
+	tokens = current;
+    return fd;
+}
+
 
 void	built_in(t_minishell *minishell)
 {
@@ -179,6 +208,7 @@ void	built_in(t_minishell *minishell)
 	int		pid;
 	int		curr;
 
+	//fd = open()
 	curr = 0;
 	tmp = minishell->tokens;
 	pipes = pipe_count(minishell);
@@ -186,26 +216,40 @@ void	built_in(t_minishell *minishell)
 	printf("pipe: %d\n", pipes);
 	while (minishell->tokens && minishell->tokens->value)
 	{
-		printf("aa\n");
+		
+		//printf("aa\n");
 		minishell->tokens = pre_execve(minishell);
 		check_cmd(minishell);
 		envp = env_to_matrix(minishell);
 		printf("aa\n");
 		printf("cmd[%d] = %s\n", 0, minishell->cmd[0]);
-		if (curr < pipes)
+		
+		if (curr < pipes + 1)
 		{
 			pid = fork();
 			if (pid == 0)
 			{
-				if (execve(minishell->cmd[0], minishell->cmd, envp) == -1)
+				printf("pid is zero\n");
+				handle_redirection(minishell->tokens);
+				printf("after redir\n");
+				// printf("token->value: %p\n", minishell->tokens);
+					// printf("echo is found\n");
+				if (ft_strcmp(minishell->cmd[0], "echo") == 0)
+				{
+					printf("echo is found\n");
+					echo(minishell->cmd);
+					printf("a\n\n\n\n");
+				}
+				else if (execve(minishell->cmd[0], minishell->cmd, envp) == -1)
 					perror("execve failed");
 			}
 			curr++;
 		}
 		//printf("here ?? \n");
+			waitpid(pid, NULL, 0);
+	
 		//continue;
-		//tokens = tokens->next;
+		//minishell->tokens = minishell->tokens->next;
 	}
-	waitpid(pid, NULL, 0);
 	minishell->tokens = tmp;
 }

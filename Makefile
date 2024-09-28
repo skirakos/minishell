@@ -16,7 +16,8 @@ SRCS = minishell.c \
 		lst_utils.c \
 		utils.c \
 		built_in.c \
-		ft_split.c
+		ft_split.c \
+		echo.c
 		
 # Object files
 OBJS = $(SRCS:.c=.o)

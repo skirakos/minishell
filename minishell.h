@@ -6,6 +6,7 @@
 # include <stdlib.h>
 # include <stdio.h>
 # include <unistd.h>
+#include <fcntl.h>
 
 typedef struct s_env		t_env;
 typedef struct s_split		t_split;
@@ -65,5 +66,6 @@ void	built_in(t_minishell *minishell);
 int		matrix_len(char **matrix);
 void	*free_matrix(char** matrix, int rows);
 char	**ft_split(char *str, char c);
+void	echo(char **args);
 
 #endif

@@ -309,7 +309,16 @@ t_split	*remove_empty_nodes(t_split *item)
 			free(tmp->value);
 			free(tmp);
 		}
-		item = item->next;
+		else
+			item = item->next;
+		// else if (item && item->value == '\0')
+		// {
+		// 	tmp = item;
+		// 	item = item->next;
+		// 	free(tmp->value);
+		// 	free(tmp);
+		// }
+
 	}
 	return (start);
 }
@@ -322,6 +331,11 @@ int check_operation(t_split *item)
     prev = NULL;
     tmp = item;
     remove_empty_nodes(item);
+	while (tmp && tmp->value)
+	{
+		printf("after remove value:%s$\n", tmp->value);
+		tmp = tmp->next;
+	}
     item = tmp;
 
     if (item && item->type == S_PIPE)
@@ -452,7 +466,7 @@ void	tokenization(char *input, t_env	*env)
 	i = 0;
 	while (tmp)
 	{
-		printf("%s\n", tmp->value);
+		printf("%s$\n", tmp->value);
 		tmp = tmp->next;
 	}
 	

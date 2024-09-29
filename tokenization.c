@@ -278,50 +278,89 @@ void	ft_strcut(t_split *item, char *input, int start, int end)
 	item->value[i] = '\0';
 	item->type = WORD;
 }
-t_split	*remove_empty_nodes(t_split *item)
-{
-	t_split	*tmp;
-	t_split	*start;
+// t_split	*remove_empty_nodes(t_split *item)
+// {
+// 	t_split	*tmp;
+// 	t_split	*start;
 
-	if (!item)
+// 	if (!item)
+//         return NULL;
+// 	tmp = item;
+// 	start = item;
+// 	if (tmp->value[0] == '\0' && tmp->next == NULL)
+// 	{
+// 		free(start->value);
+// 		free(start);
+// 		return (NULL);
+// 	}
+// 	else if (item->value[0] == '\0')
+// 	{
+// 		start = item->next;
+// 		item = start;
+// 		free(tmp->value);
+// 		free(tmp);
+// 	}
+// 	while (item && item->next)
+// 	{
+// 		printf("seggggg??? \n");
+// 		if (item->next && item->next->value[0] == '\0')
+// 		{
+// 			tmp = item->next;
+// 			item = item->next->next;
+// 			free(tmp->value);
+// 			free(tmp);
+// 		}
+// 		else
+// 			item = item->next;
+// 	}
+// 	//free(item->value);
+// 	return (start);
+// }
+
+
+
+t_split *remove_empty_nodes(t_split *item) {
+    t_split *current = item;
+    t_split *prev = NULL;
+    t_split *head = item; // Keep track of the head of the list
+
+    // Handle the case where the head (and consecutive nodes) are empty or NULL
+    while (current != NULL && (current->value == NULL || current->value[0] == '\0')) {
+        t_split *temp = current;  // Temporary pointer to the current node
+        current = current->next;  // Move to the next node
+        free(temp->value);        // Free the value (if it's allocated)
+        free(temp);               // Free the node itself
+    }
+
+    // If all nodes were removed, return NULL
+    if (current == NULL) {
         return NULL;
-	tmp = item;
-	start = item;
-	if (tmp->value == '\0' && tmp->next == NULL)
-	{
-		free(start->value);
-		free(start);
-		return (NULL);
-	}
-	else if (item->value == '\0')
-	{
-		start = item->next;
-		item = start;
-		free(tmp->value);
-		free(tmp);
-	}
-	while (item)
-	{
-		if (item->next && item->next->value == '\0')
-		{
-			tmp = item->next;
-			item = item->next->next;
-			free(tmp->value);
-			free(tmp);
-		}
-		else
-			item = item->next;
-		// else if (item && item->value == '\0')
-		// {
-		// 	tmp = item;
-		// 	item = item->next;
-		// 	free(tmp->value);
-		// 	free(tmp);
-		// }
+    }
 
-	}
-	return (start);
+    // Set the new head if it's not empty
+    head = current;
+    prev = current;
+    current = current->next;
+
+    // Now process the rest of the list
+    while (current != NULL) {
+        if (current->value == NULL || current->value[0] == '\0') {
+            // Node is empty, remove it
+            prev->next = current->next; // Skip over the current node
+            free(current->value);       // Free the value
+            free(current);              // Free the node itself
+            current = prev->next;       // Move to the next node
+        } else {
+            // Move to the next node
+            prev = current;
+            current = current->next;
+        }
+    }
+
+    return head; // Return the new head of the list
 }
+
+
 
 int check_operation(t_split *item)
 {
@@ -330,12 +369,13 @@ int check_operation(t_split *item)
 
     prev = NULL;
     tmp = item;
-    remove_empty_nodes(item);
+	//printf("after remove empty nodes \n");
 	while (tmp && tmp->value)
 	{
 		printf("after remove value:%s$\n", tmp->value);
 		tmp = tmp->next;
 	}
+    item = remove_empty_nodes(item);
     item = tmp;
 
     if (item && item->type == S_PIPE)

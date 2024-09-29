@@ -67,5 +67,7 @@ int		matrix_len(char **matrix);
 void	*free_matrix(char** matrix, int rows);
 char	**ft_split(char *str, char c);
 void	echo(char **args);
+void	cd(t_minishell *minishell);
+void	cd(t_minishell *minishell);
 
 #endif

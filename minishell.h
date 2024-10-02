@@ -6,7 +6,8 @@
 # include <stdlib.h>
 # include <stdio.h>
 # include <unistd.h>
-#include <fcntl.h>
+# include <fcntl.h>
+# include <limits.h>
 
 typedef struct s_env		t_env;
 typedef struct s_split		t_split;

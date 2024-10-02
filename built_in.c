@@ -226,6 +226,12 @@ void	built_in(t_minishell *minishell)
 		
 		if (curr < pipes + 1)
 		{
+			if (ft_strcmp(minishell->cmd[0], "cd") == 0)
+			{
+				printf("cd is found\n");
+				cd(minishell);
+				printf("b\n\n\n\n");
+			}
 			pid = fork();
 			if (pid == 0)
 			{
@@ -240,12 +246,12 @@ void	built_in(t_minishell *minishell)
 					echo(minishell->cmd);
 					printf("a\n\n\n\n");
 				}
-				else if (ft_strcmp(minishell->cmd[0], "cd") == 0)
-				{
-					printf("cd is found\n");
-					cd(minishell);
-					printf("b\n\n\n\n");
-				}
+				// else if (ft_strcmp(minishell->cmd[0], "cd") == 0)
+				// {
+				// 	printf("cd is found\n");
+				// 	cd(minishell);
+				// 	printf("b\n\n\n\n");
+				// }
 				else if (execve(minishell->cmd[0], minishell->cmd, envp) == -1)
 					perror("execve failed");
 			}

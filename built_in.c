@@ -120,6 +120,8 @@ void	check_cmd(t_minishell *minishell)
 	}
 	while (minishell->env)
 	{
+		//printf("env->value: %p\n", minishell->env->value);
+		printf("esteghhhhhhhh??????\n");
 		if (ft_strcmp(minishell->env->var, "PATH") == 0)
 			path = ft_split(minishell->env->value, ':');
 		minishell->env = minishell->env->next;
@@ -161,7 +163,6 @@ int	pipe_count(t_minishell *minishell)
 {
 	int		pipe_count;
 	t_split *tmp;
-
 	tmp = minishell->tokens;
 	pipe_count = 0;
 	while (minishell && minishell->tokens)
@@ -205,7 +206,7 @@ void	built_in(t_minishell *minishell)
 	t_split	*tmp;
 	char	**envp;
 	int		pipes;
-	int		pid;
+	//int		pid;
 	int		curr;
 
 	//fd = open()
@@ -216,8 +217,6 @@ void	built_in(t_minishell *minishell)
 	printf("pipe: %d\n", pipes);
 	while (minishell->tokens && minishell->tokens->value)
 	{
-		
-		//printf("aa\n");
 		minishell->tokens = pre_execve(minishell);
 		check_cmd(minishell);
 		envp = env_to_matrix(minishell);
@@ -232,33 +231,40 @@ void	built_in(t_minishell *minishell)
 				cd(minishell);
 				printf("b\n\n\n\n");
 			}
-			pid = fork();
-			if (pid == 0)
+			else if (ft_strcmp(minishell->cmd[0], "env") == 0)
 			{
-				printf("pid is zero\n");
-				handle_redirection(minishell->tokens);
-				printf("after redir\n");
-				// printf("token->value: %p\n", minishell->tokens);
-					// printf("echo is found\n");
-				if (ft_strcmp(minishell->cmd[0], "echo") == 0)
-				{
-					printf("echo is found\n");
-					echo(minishell->cmd);
-					printf("a\n\n\n\n");
-				}
-				// else if (ft_strcmp(minishell->cmd[0], "cd") == 0)
-				// {
-				// 	printf("cd is found\n");
-				// 	cd(minishell);
-				// 	printf("b\n\n\n\n");
-				// }
-				else if (execve(minishell->cmd[0], minishell->cmd, envp) == -1)
-					perror("execve failed");
+				printf("env is found\n");
+				env(minishell);
 			}
+			else if (ft_strcmp(minishell->cmd[0], "unset") == 0)
+			{
+				printf("unset is found\n");
+				unset(minishell);
+				printf("after unset %s\n\n", minishell->env->var);
+			}
+			// pid = fork();
+			// if (pid == 0)
+			// {
+			// 	printf("pid is zero\n");
+			// 	handle_redirection(minishell->tokens);
+			// 	printf("after redir\n");
+			// 	if (ft_strcmp(minishell->cmd[0], "echo") == 0)
+			// 	{
+			// 		printf("echo is found\n");
+			// 		echo(minishell->cmd);
+			// 	}
+			// 	else if (ft_strcmp(minishell->cmd[0], "pwd") == 0)
+			// 	{
+			// 		printf("pwd is found\n");
+			// 		pwd();
+			// 	}
+			// 	else if (execve(minishell->cmd[0], minishell->cmd, envp) == -1)
+			// 		perror("execve failed");
+			//}
 			curr++;
 		}
 		//printf("here ?? \n");
-			waitpid(pid, NULL, 0);
+	//		waitpid(pid, NULL, 0);
 	
 		//continue;
 		//minishell->tokens = minishell->tokens->next;

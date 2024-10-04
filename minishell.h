@@ -70,5 +70,9 @@ char	**ft_split(char *str, char c);
 void	echo(char **args);
 void	cd(t_minishell *minishell);
 void	cd(t_minishell *minishell);
+void	ft_putstr_fd(char const *s, int fd);
+void	pwd();
+void	env(t_minishell *minishell);
+void	unset(t_minishell *minishell);
 
 #endif

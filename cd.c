@@ -17,12 +17,17 @@ void	update_env(t_env *env, char *pwd_to_set, int flag)
 			free(env->value);
 			env->value = NULL;
 			env->value = ft_strdup(pwd_to_set);
-			printf("env->var: %s\n", env->var);
 			break;
 		}
 		env = env->next;
 	}
 	env = tmp;
+	// while (env)
+	// {
+	// 	printf("%s=%s\n", env->var, env->value);
+	// 	env = env->next;
+	// }
+	// env = tmp;
 }
 
 char	*tilda(t_minishell *minishell)
@@ -47,14 +52,9 @@ void	cd(t_minishell *minishell)
 	if (getcwd(old_pwd, PATH_MAX) != NULL)
 		update_env(minishell->env, old_pwd, 0);
 	if (!minishell->cmd[1] || ft_strcmp(minishell->cmd[1], "~") == 0 || ft_strcmp(minishell->cmd[1], "~/") == 0)
-	{
 		path = getenv("HOME");
-	}
 	else if (minishell->cmd[1][0] == '~')
-	{
 		path = tilda(minishell);
-		
-	}
 	else
 		path = minishell->cmd[1];
 	if (access(path, F_OK) == 0)

@@ -89,7 +89,21 @@ char	**env_to_matrix(t_minishell *minishell)
 	}
 	envp[i] = NULL;
 	minishell->env = env;
+	printf("\n\n\n%s\n\n\n\n", minishell->env->var);
 	return (envp);
+}
+
+int	is_builtin(char	*cmd)
+{
+	if (ft_strcmp(cmd, "echo") == 0
+	|| ft_strcmp(cmd, "cd") == 0
+	|| ft_strcmp(cmd, "pwd") == 0
+	|| ft_strcmp(cmd, "export") == 0
+	|| ft_strcmp(cmd, "unset") == 0
+	|| ft_strcmp(cmd, "env") == 0
+	|| ft_strcmp(cmd, "exit") == 0)
+		return (0);
+	return (1);
 }
 void	check_cmd(t_minishell *minishell)
 {
@@ -120,7 +134,8 @@ void	check_cmd(t_minishell *minishell)
 	}
 	while (minishell->env)
 	{
-		//printf("env->value: %p\n", minishell->env->value);
+		printf("\nenv->afafafafe: %p\n\n", minishell->env);
+		printf("\nenv->fafafalue: %p\n\n", minishell->env->var);
 		printf("esteghhhhhhhh??????\n");
 		if (ft_strcmp(minishell->env->var, "PATH") == 0)
 			path = ft_split(minishell->env->value, ':');
@@ -136,8 +151,9 @@ void	check_cmd(t_minishell *minishell)
 	i = 0;
 	while (path[i])
 	{
-		if (ft_strcmp(minishell->cmd[0], "echo") != 0 && ft_strcmp(minishell->cmd[0], "cd") != 0 && ft_strcmp(minishell->cmd[0], "pwd") != 0 && ft_strcmp(minishell->cmd[0], "export") != 0 && ft_strcmp(minishell->cmd[0], "unset") != 0 && ft_strcmp(minishell->cmd[0], "env") != 0 && ft_strcmp(minishell->cmd[0], "exit") != 0)
+		if (is_builtin(minishell->cmd[0]))
 		{
+			printf("himayaaaa> \n");
 			joined_path = ft_strjoin(path[i], "/");
 			tmp_join = joined_path;
 			joined_path = ft_strjoin(joined_path, minishell->cmd[0]);
@@ -204,12 +220,9 @@ int handle_redirection(t_split *tokens) {
 void	built_in(t_minishell *minishell)
 {
 	t_split	*tmp;
-	char	**envp;
 	int		pipes;
-	//int		pid;
 	int		curr;
 
-	//fd = open()
 	curr = 0;
 	tmp = minishell->tokens;
 	pipes = pipe_count(minishell);
@@ -217,9 +230,10 @@ void	built_in(t_minishell *minishell)
 	printf("pipe: %d\n", pipes);
 	while (minishell->tokens && minishell->tokens->value)
 	{
+		printf("minishellllllll----->env---->%p\n\n\n", minishell->env);
 		minishell->tokens = pre_execve(minishell);
 		check_cmd(minishell);
-		envp = env_to_matrix(minishell);
+		// envp = env_to_matrix(minishell);
 		printf("aa\n");
 		printf("cmd[%d] = %s\n", 0, minishell->cmd[0]);
 		
@@ -229,7 +243,6 @@ void	built_in(t_minishell *minishell)
 			{
 				printf("cd is found\n");
 				cd(minishell);
-				printf("b\n\n\n\n");
 			}
 			else if (ft_strcmp(minishell->cmd[0], "env") == 0)
 			{
@@ -240,27 +253,29 @@ void	built_in(t_minishell *minishell)
 			{
 				printf("unset is found\n");
 				unset(minishell);
-				printf("after unset %s\n\n", minishell->env->var);
 			}
-			// pid = fork();
-			// if (pid == 0)
-			// {
-			// 	printf("pid is zero\n");
-			// 	handle_redirection(minishell->tokens);
-			// 	printf("after redir\n");
-			// 	if (ft_strcmp(minishell->cmd[0], "echo") == 0)
-			// 	{
-			// 		printf("echo is found\n");
-			// 		echo(minishell->cmd);
-			// 	}
-			// 	else if (ft_strcmp(minishell->cmd[0], "pwd") == 0)
-			// 	{
-			// 		printf("pwd is found\n");
-			// 		pwd();
-			// 	}
-			// 	else if (execve(minishell->cmd[0], minishell->cmd, envp) == -1)
-			// 		perror("execve failed");
-			//}
+			else if (ft_strcmp(minishell->cmd[0], "exit") == 0)
+			{
+				printf("exit is found\n");
+				exit(minishell);
+			}
+			pid = fork();
+			if (pid == 0)
+			{
+				handle_redirection(minishell->tokens);
+				if (ft_strcmp(minishell->cmd[0], "echo") == 0)
+				{
+					printf("echo is found\n");
+					echo(minishell->cmd);
+				}
+				else if (ft_strcmp(minishell->cmd[0], "pwd") == 0)
+				{
+					printf("pwd is found\n");
+					pwd();
+				}
+				else if (execve(minishell->cmd[0], minishell->cmd, envp) == -1)
+					perror("execve failed");
+			}
 			curr++;
 		}
 		//printf("here ?? \n");

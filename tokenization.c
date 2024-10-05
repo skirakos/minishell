@@ -266,12 +266,15 @@ void	ft_strcut(t_split *item, char *input, int start, int end)
 	int	i;
 
 	i = 0;
+	printf("lllllllllll\n\n");
 	item->value = malloc(end - start + 2);
 	if (!item->value)
 		return ;
-	while (item->value[i] && input[i] && start <= end)
+	printf("kkkkkkkklllllllllll\n\n");
+	while (input[i] && start <= end)
 	{
 		item->value[i] = input[start];
+		printf("item->value[i] = input[start]: %c = %c\n", item->value[i], input[start]);
 		i++;
 		start++;
 	}
@@ -403,7 +406,7 @@ int check_operation(t_split *item)
 }
 
 
-void	tokenization(char *input, t_env	*env)
+void	tokenization(char *input, t_minishell *minishell)
 {
 	int		i;
 	int		start;
@@ -412,7 +415,6 @@ void	tokenization(char *input, t_env	*env)
 	char	current_quote;
 	t_split	*item;
 	t_split	*tmp;
-	t_minishell *minishell;
 
 	item = ft_lstnew(NULL);
 	if (!item)
@@ -422,6 +424,7 @@ void	tokenization(char *input, t_env	*env)
 	end = 0;
 	start = 0;
 	quote_count = 0;
+	printf("\ninput: %s\n\n\n", input);
 	while (input[i])
 	{
 		if (input[i] == '"' || input[i] == 39)
@@ -441,14 +444,17 @@ void	tokenization(char *input, t_env	*env)
 			if (input[i] == current_quote && (input[i + 1] == '\0' || input[i + 1] == ' ' || input[i + 1] == '|' || input[i + 1] == '<' || input[i + 1] == '>'))
 			{
 				end = i;
+				printf("mi bannn\n");
 				item->next = malloc(sizeof(t_split));
 				if (!item->next)
 					return ;
+				printf("start: %d ---- end: %d\n", start, end);
 				ft_strcut(item->next, input, start, end);
 				start = ++end;
 				current_quote = 0;
 				item = item->next;
 				item->next = NULL;
+				printf("item->valueeeeeeee : %s\n\n", item->value);
 				i++;
 				continue ;
 			}
@@ -483,25 +489,19 @@ void	tokenization(char *input, t_env	*env)
 		item->next = malloc(sizeof(t_split));
 		if (!item->next)
 			return ;
-		//printf("endddd: %d\n", end);
 		ft_strcut(item->next, input, start, end);
 		item = item->next;
 		item->next = NULL;
 		i++;
 	}
 	item = tmp->next;
+	printf("\nitem->value: %s\n\n", item->value);
 	current_quote = 0;
 	free(tmp);
 	tmp = item;
-	//printf("hmmmmm: %s$\n ----- type: %s", tmp->value, tmp->type);
-	dollar_sign(item, env);
-	//remove_empty_nodes(item);
+	dollar_sign(item, minishell->env);
 	check_operation(item);
-	minishell = malloc(sizeof(t_minishell));
-	if (!minishell)
-		return ;
 	minishell->tokens = tmp;
-	minishell->env = env;
 	built_in(minishell);
 	i = 0;
 	while (tmp)

@@ -10,14 +10,11 @@ void	unset(t_minishell *minishell)
         return;
 	if (ft_strcmp(minishell->cmd[1], minishell->env->var) == 0)
 	{
-		node_to_delete = minishell->env;
-		minishell->env = minishell->env->next;
-		node_to_delete->next = NULL;
-		free(node_to_delete->var);
-		free(node_to_delete->value);
-		free(node_to_delete);
-		printf("env->var ----- %s\n",  minishell->env->var);
-		
+		tmp = minishell->env->next;
+		free(minishell->env->value);
+		free(minishell->env->var);
+		free(minishell->env);
+		minishell->env = tmp;
 		return ;
 	}
 	tmp = minishell->env;

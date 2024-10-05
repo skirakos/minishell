@@ -19,7 +19,8 @@ SRCS = minishell.c \
 		ft_split.c \
 		echo.c \
 		cd.c \
-		pwd_env_unset.c 
+		pwd_env_unset.c \
+		exit.c
 		
 # Object files
 OBJS = $(SRCS:.c=.o)

@@ -78,14 +78,17 @@ t_env	*env_copy(char **env)
 
 int main(int argc, char **argv, char **env)
 {
-	char	*input = NULL;
-	t_env	*fake_env;
+	char		*input = NULL;
+	t_minishell	*minishell;
 
 	(void)argv;
 
 	if (argc == 1)
 	{
-		fake_env = env_copy(env);
+		minishell = malloc(sizeof(t_minishell));
+		if (!minishell)
+			return (1);
+		minishell->env = env_copy(env);
 		while (1)
 		{
 			input = readline("MINISHELL GJUK: ");
@@ -97,7 +100,7 @@ int main(int argc, char **argv, char **env)
 			else
 			{
 				add_history(input);
-				tokenization(input, fake_env);
+				tokenization(input, minishell);
 				free(input);
 			}
 		}

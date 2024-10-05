@@ -52,7 +52,7 @@ typedef	struct s_minishell {
 
 } t_minishell;
 
-void	tokenization(char *input, t_env	*env);
+void	tokenization(char *input, t_minishell *minishell);
 t_split	*ft_lstnew(char *content);
 void	dollar(t_split	*item, t_env *env);
 char	*ft_substr(char *s, int start, int len);

@@ -9,6 +9,8 @@
 # include <fcntl.h>
 # include <limits.h>
 
+extern int g_exit_status;
+
 typedef struct s_env		t_env;
 typedef struct s_split		t_split;
 typedef struct s_minishell	t_minishell;
@@ -69,10 +71,16 @@ void	*free_matrix(char** matrix, int rows);
 char	**ft_split(char *str, char c);
 void	echo(char **args);
 void	cd(t_minishell *minishell);
-void	cd(t_minishell *minishell);
 void	ft_putstr_fd(char const *s, int fd);
 void	pwd();
 void	env(t_minishell *minishell);
 void	unset(t_minishell *minishell);
+void	exit_shell(t_minishell *minihell);
+int		ft_atoi(char *str);
+void	free_before_exit(t_minishell *minihell);
+void	free_t_env(t_env *env);
+void	free_t_split(t_split *tokens);
+void	export_bulki(t_minishell *minishell, char **envp);
+void	merge_sort(char **arr, int left, int right);
 
 #endif

@@ -94,6 +94,7 @@ int main(int argc, char **argv, char **env)
 			input = readline("MINISHELL GJUK: ");
 			if (input == NULL)
 			{
+				printf("input is NULL\n");
 				free(input);
 				break;
 			}

@@ -1,28 +1,37 @@
 #include "minishell.h"
 
+int g_exit_status = 0;
+
 int	is_valid(char	*status)
 {
 	int	i;
 
 	i = 0;
-	while (str[i])
+	while (status[i])
 	{
-		if (str[i] >= '0' && str[i] <= '9')
+		if (status[i] >= '0' && status[i] <= '9')
 			i++;
 		else
 			return (-1);
 	}
 	return (0);
 }
+
 void	exit_shell(t_minishell *minihell)
 {
-	int	exit_code;
-
-	if (minihell->cmd[1] && is_valid(minihell->cmd[1]) == 0)
+	if (matrix_len(minihell->cmd) > 2)
 	{
-		exit_code = ft_atoi(minihell->cmd[1]);
-		if (exit_code < 0 || exit_code > 255)
-        	exit_code = exit_code % 256;
-		exit(exit_code);
+		ft_putstr_fd("Minishell gjuk: exit: too many arguments\n", 2);
+		g_exit_status = 1;
 	}
+	else if (minihell->cmd[1] && is_valid(minihell->cmd[1]) == 0)
+	{
+		g_exit_status = ft_atoi(minihell->cmd[1]);
+		if (g_exit_status < 0 || g_exit_status > 255)
+        	g_exit_status = g_exit_status % 256; // ba vor negative lini ??? kara?
+	}
+	else
+		g_exit_status = 255;
+	free_before_exit(minihell);
+	exit(g_exit_status);
 }

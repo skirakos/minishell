@@ -20,7 +20,11 @@ SRCS = minishell.c \
 		echo.c \
 		cd.c \
 		pwd_env_unset.c \
-		exit.c
+		exit.c \
+		ft_atoi.c \
+		export.c \
+		merge_sort.c \
+		free.c
 		
 # Object files
 OBJS = $(SRCS:.c=.o)

@@ -99,30 +99,6 @@ int	ft_strcmp(const char *s1, const char *s2)
 	return (0);
 }
 
-int		matrix_len(char **matrix)
-{
-	int	i;
-
-	i = 0;
-	while (matrix[i])
-	{
-		i++;
-	}
-	return (i);
-}
-
-void	*free_matrix(char** matrix, int rows) {
-    int 	i;
-
-	i = 0;
-    while (i < rows)
-	{
-        free(matrix[i]);
-        i++;
-    }
-    free(matrix);
-	return (NULL);
-}
 
 void	ft_putstr_fd(char const *s, int fd)
 {

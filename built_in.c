@@ -222,6 +222,8 @@ void	built_in(t_minishell *minishell)
 	t_split	*tmp;
 	int		pipes;
 	int		curr;
+	int		pid;
+	char	**envp;
 
 	curr = 0;
 	tmp = minishell->tokens;
@@ -233,7 +235,7 @@ void	built_in(t_minishell *minishell)
 		printf("minishellllllll----->env---->%p\n\n\n", minishell->env);
 		minishell->tokens = pre_execve(minishell);
 		check_cmd(minishell);
-		// envp = env_to_matrix(minishell);
+		envp = env_to_matrix(minishell);
 		printf("aa\n");
 		printf("cmd[%d] = %s\n", 0, minishell->cmd[0]);
 		
@@ -257,7 +259,12 @@ void	built_in(t_minishell *minishell)
 			else if (ft_strcmp(minishell->cmd[0], "exit") == 0)
 			{
 				printf("exit is found\n");
-				exit(minishell);
+				exit_shell(minishell);
+			}
+			else if (ft_strcmp(minishell->cmd[0], "export") == 0)
+			{
+				printf("export is found\n");
+				export_bulki(minishell, envp);
 			}
 			pid = fork();
 			if (pid == 0)
@@ -279,7 +286,7 @@ void	built_in(t_minishell *minishell)
 			curr++;
 		}
 		//printf("here ?? \n");
-	//		waitpid(pid, NULL, 0);
+		waitpid(pid, NULL, 0);
 	
 		//continue;
 		//minishell->tokens = minishell->tokens->next;

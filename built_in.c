@@ -181,6 +181,14 @@ int	pipe_count(t_minishell *minishell)
 	t_split *tmp;
 	tmp = minishell->tokens;
 	pipe_count = 0;
+	printf("chyooo???\n");
+	if (!minishell->tokens || minishell->tokens->value)
+	{
+		printf("chyooo\n");
+		return (0);
+	}
+	printf("vyy chyooo\n");
+
 	while (minishell && minishell->tokens)
 	{
 		if (minishell->tokens->type == S_PIPE)
@@ -203,6 +211,8 @@ int handle_redirection(t_split *tokens) {
                 fd = open(current->next->value, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 			else if (ft_strcmp(current->value, ">>") == 0)
                 fd = open(current->next->value, O_WRONLY | O_CREAT | O_APPEND, 0644);
+			if (ft_strcmp(current->value, "<") == 0)
+                fd = open(current->next->value, O_WRONLY | O_CREAT | O_TRUNC, 0644);
             if (fd == -1) {
                 perror("open");
                 return -1;
@@ -227,7 +237,12 @@ void	built_in(t_minishell *minishell)
 
 	curr = 0;
 	tmp = minishell->tokens;
+	printf("before pipe count\n");
 	pipes = pipe_count(minishell);
+	
+	printf("after pipe count\n");
+
+
 	printf("helloo builtin\n");
 	printf("pipe: %d\n", pipes);
 	while (minishell->tokens && minishell->tokens->value)
@@ -241,48 +256,53 @@ void	built_in(t_minishell *minishell)
 		
 		if (curr < pipes + 1)
 		{
-			if (ft_strcmp(minishell->cmd[0], "cd") == 0)
+			if (pipes == 0)
 			{
-				printf("cd is found\n");
-				cd(minishell);
-			}
-			else if (ft_strcmp(minishell->cmd[0], "env") == 0)
-			{
-				printf("env is found\n");
-				env(minishell);
-			}
-			else if (ft_strcmp(minishell->cmd[0], "unset") == 0)
-			{
-				printf("unset is found\n");
-				unset(minishell);
-			}
-			else if (ft_strcmp(minishell->cmd[0], "exit") == 0)
-			{
-				printf("exit is found\n");
-				exit_shell(minishell);
-			}
-			else if (ft_strcmp(minishell->cmd[0], "export") == 0)
-			{
-				printf("export is found\n");
-				export_bulki(minishell, envp);
-			}
-			pid = fork();
-			if (pid == 0)
-			{
-				handle_redirection(minishell->tokens);
-				if (ft_strcmp(minishell->cmd[0], "echo") == 0)
+				if (ft_strcmp(minishell->cmd[0], "cd") == 0)
 				{
-					printf("echo is found\n");
-					echo(minishell->cmd);
+					printf("cd is found\n");
+					cd(minishell);
 				}
-				else if (ft_strcmp(minishell->cmd[0], "pwd") == 0)
+				else if (ft_strcmp(minishell->cmd[0], "env") == 0)
 				{
-					printf("pwd is found\n");
-					pwd();
+					printf("env is found\n");
+					env(minishell);
 				}
-				else if (execve(minishell->cmd[0], minishell->cmd, envp) == -1)
-					perror("execve failed");
+				else if (ft_strcmp(minishell->cmd[0], "unset") == 0)
+				{
+					printf("unset is found\n");
+					unset(minishell);
+				}
+				else if (ft_strcmp(minishell->cmd[0], "exit") == 0)
+				{
+					printf("exit is found\n");
+					exit_shell(minishell);
+				}
+				else if (ft_strcmp(minishell->cmd[0], "export") == 0)
+				{
+					printf("export is found\n");
+					export_bulki(minishell, envp);
+				}
 			}
+			else
+				pid = fork();
+				// ft_dups();
+				if (pid == 0)
+				{
+					handle_redirection(minishell->tokens);
+					if (ft_strcmp(minishell->cmd[0], "echo") == 0)
+					{
+						printf("echo is found\n");
+						echo(minishell->cmd);
+					}
+					else if (ft_strcmp(minishell->cmd[0], "pwd") == 0)
+					{
+						printf("pwd is found\n");
+						pwd();
+					}
+					else if (execve(minishell->cmd[0], minishell->cmd, envp) == -1)
+						perror("execve failed");
+				}
 			curr++;
 		}
 		//printf("here ?? \n");

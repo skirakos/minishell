@@ -78,35 +78,28 @@ t_env	*env_copy(char **env)
 
 int main(int argc, char **argv, char **env)
 {
-	char		*input = NULL;
+	char		*input;
 	t_minishell	*minishell;
 
 	(void)argv;
-
+	input = ft_strdup("");
 	if (argc == 1)
 	{
 		minishell = malloc(sizeof(t_minishell));
 		if (!minishell)
 			return (1);
 		minishell->env = env_copy(env);
-		while (1)
+		while (input)
 		{
 			input = readline("MINISHELL GJUK: ");
-			if (input == NULL)
+			if(input)
 			{
-				printf("input is NULL\n");
-				free(input);
-				break;
-			}
-			else
-			{
+				printf("input: %s$\n", input);
 				add_history(input);
 				tokenization(input, minishell);
-				free(input);
 			}
+			free(input);
 		}
 	}
-	if (input)
-		free(input);
 	return (0);
 }

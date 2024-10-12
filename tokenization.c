@@ -331,13 +331,15 @@ t_split *remove_empty_nodes(t_split *item) {
     while (current != NULL && (current->value == NULL || current->value[0] == '\0')) {
         t_split *temp = current;  // Temporary pointer to the current node
         current = current->next;  // Move to the next node
+		printf("current->next pti NULL lini %p\n", current);
         free(temp->value);        // Free the value (if it's allocated)
         free(temp);               // Free the node itself
     }
 
     // If all nodes were removed, return NULL
     if (current == NULL) {
-        return NULL;
+		printf("aysinqn stex pti mtni\n");
+	    return NULL;
     }
 
     // Set the new head if it's not empty
@@ -365,43 +367,42 @@ t_split *remove_empty_nodes(t_split *item) {
 
 
 
-int check_operation(t_split *item)
+int check_operation(t_split **item)
 {
-    t_split *tmp;
     t_split *prev;
+	t_split	*temp;
+
+	temp = *item;
 
     prev = NULL;
-    tmp = item;
 	//printf("after remove empty nodes \n");
-	while (tmp && tmp->value)
-	{
-		printf("after remove value:%s$\n", tmp->value);
-		tmp = tmp->next;
-	}
-    item = remove_empty_nodes(item);
-    item = tmp;
-
-    if (item && item->type == S_PIPE)
+	// while (tmp && tmp->value)
+	// {
+	// 	printf("after remove value:%s$\n", tmp->value);
+	// 	tmp = tmp->next;
+	// }
+    (*item) = remove_empty_nodes((*item));
+    if ((*item) && (*item)->type == S_PIPE)
         return (1); // Error handling
-    while (item && item->value)
+    while (temp && temp->value)
     {
-        if (item->next)
+        if (temp->next)
         {
-            if (item->next->type == S_PIPE &&
-                (item->type != WORD || (item->next->next && item->next->next->type != WORD)))
+            if (temp->next->type == S_PIPE &&
+                (temp->type != WORD || (temp->next->next && temp->next->next->type != WORD)))
             {
                 return (1); // Error handling
             }
-            else if ((item->type == HERE_DOC || item->type == IN_REDIR || item->type == OUT_REDIR ||
-                      item->type == APPEND_REDIR) &&
-                     (item->next == NULL || item->next->type != WORD))
+            else if ((temp->type == HERE_DOC || temp->type == IN_REDIR || temp->type == OUT_REDIR ||
+                      temp->type == APPEND_REDIR) &&
+                     (temp->next == NULL || temp->next->type != WORD))
             {
                 return (1); // Error handling
             }
         }
-        item = item->next;
+        temp = temp->next;
     }
-
+	printf("ura????\n");
     return (0); // No errors
 }
 
@@ -425,7 +426,7 @@ void	tokenization(char *input, t_minishell *minishell)
 	start = 0;
 	quote_count = 0;
 	printf("\ninput: %s\n\n\n", input);
-	while (input[i])
+	while (input && input[i])
 	{
 		if (input[i] == '"' || input[i] == 39)
 		{
@@ -495,21 +496,24 @@ void	tokenization(char *input, t_minishell *minishell)
 		i++;
 	}
 	item = tmp->next;
-	printf("\nitem->value: %s\n\n", item->value);
-	current_quote = 0;
 	free(tmp);
-	tmp = item;
-	dollar_sign(item, minishell->env);
-	check_operation(item);
-	minishell->tokens = tmp;
-	built_in(minishell);
-	i = 0;
-	while (tmp)
+	if (item)
 	{
-		printf("%s$\n", tmp->value);
-		tmp = tmp->next;
+		dollar_sign(item, minishell->env);
+		check_operation(&item);
+		tmp = item;
+		printf("itemY xi NULLLL chi????? %p\n", item);
+		minishell->tokens = item;
+		printf("beforeeeee built_in %p\n", minishell->tokens);
+		if (minishell->tokens && minishell->tokens->value)
+			built_in(minishell);
+		i = 0;
+		while (tmp)
+		{
+			printf("%s$\n", tmp->value);
+			tmp = tmp->next;
+		}
 	}
-	
 }
 
 void	dollar(t_split	*item, t_env *env)

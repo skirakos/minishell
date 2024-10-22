@@ -5,7 +5,7 @@ TARGET = minishell
 CC = gcc
 
 # Compiler flags
-CFLAGS = -Wall -Wextra -Werror -I. -g3 -fsanitize=address
+CFLAGS = # -Wall -Wextra -Werror -I. -g3 -fsanitize=address
 
 # Libraries to link with
 LIBS = -lreadline -lncurses
@@ -24,7 +24,8 @@ SRCS = minishell.c \
 		ft_atoi.c \
 		export.c \
 		merge_sort.c \
-		free.c
+		free.c \
+		here_doc.c
 		
 # Object files
 OBJS = $(SRCS:.c=.o)

@@ -11,6 +11,8 @@ t_split	*pre_execve(t_minishell *minishell)
 	len = 0;
 	while (tmp && tmp->value && (tmp->type == WORD || tmp->type != S_PIPE))
 	{
+		if (check_redir(tmp->value))
+			len -= 2;
 		len++;
 		tmp = tmp->next;
 	}
@@ -19,10 +21,19 @@ t_split	*pre_execve(t_minishell *minishell)
 	if (!matrix)
 		return (NULL);
 	i = 0;
+
 	while (minishell->tokens && minishell->tokens->value && i < len)
 	{
-		matrix[i] = ft_strdup(minishell->tokens->value);
-		i++;
+		if (!check_redir(minishell->tokens->value))
+		{
+			matrix[i] = ft_strdup(minishell->tokens->value);
+			i++;
+		}
+		else
+		{
+			handle_redirection(minishell->tokens->type, minishell->tokens->next->value);
+			minishell->tokens = minishell->tokens->next;
+		}
 		minishell->tokens = minishell->tokens->next;
 	}
 	matrix[len] = NULL;
@@ -34,9 +45,10 @@ t_split	*pre_execve(t_minishell *minishell)
 	}
 	minishell->cmd = matrix;
 	// printf("SSSSSSSSSSSSSSSSSSS------>%s\n", minishell->cmd[0]);
-	printf("help-------->%p\n" , minishell->tokens);
+	//printf("help-------->%p\n" , minishell->tokens);
 	if (tmp->type == S_PIPE)
 		minishell->tokens = minishell->tokens->next;
+	printf("minishell->tokens: %p\n", &minishell->tokens:)
 	return (minishell->tokens);
 }
 int	search_slash(char *str)
@@ -114,7 +126,7 @@ void	check_cmd(t_minishell *minishell)
 	int		i;
 
 	if (!minishell->cmd[0]) {
-		printf("fbafhaifha\n");
+		//printf("fbafhaifha\n");
 		return ;
 	}
 	tmp = minishell->env;
@@ -134,9 +146,9 @@ void	check_cmd(t_minishell *minishell)
 	}
 	while (minishell->env)
 	{
-		printf("\nenv->afafafafe: %p\n\n", minishell->env);
-		printf("\nenv->fafafalue: %p\n\n", minishell->env->var);
-		printf("esteghhhhhhhh??????\n");
+		// printf("\nenv->afafafafe: %p\n\n", minishell->env);
+		// printf("\nenv->fafafalue: %p\n\n", minishell->env->var);
+		// printf("esteghhhhhhhh??????\n");
 		if (ft_strcmp(minishell->env->var, "PATH") == 0)
 			path = ft_split(minishell->env->value, ':');
 		minishell->env = minishell->env->next;
@@ -153,11 +165,11 @@ void	check_cmd(t_minishell *minishell)
 	{
 		if (is_builtin(minishell->cmd[0]))
 		{
-			printf("himayaaaa> \n");
+			//printf("himayaaaa> \n");
 			joined_path = ft_strjoin(path[i], "/");
 			tmp_join = joined_path;
 			joined_path = ft_strjoin(joined_path, minishell->cmd[0]);
-			printf("joined_path: %s\n", joined_path);
+			//printf("joined_path: %s\n", joined_path);
 			free(tmp_join);
 			if (access(joined_path, X_OK) == 0)
 			{
@@ -198,32 +210,55 @@ int	pipe_count(t_minishell *minishell)
 	minishell->tokens = tmp;
 	return (pipe_count);
 }
-int handle_redirection(t_split *tokens) {
-    int fd;
-    t_split *current;
 
-	current = tokens;
-	fd = -1;
-    while (current) {
-        if (current->type == IN_REDIR)
+int	check_redir(char *str)
+{
+	if (ft_strcmp(str, "<") == 0
+		|| ft_strcmp(str, ">") == 0
+		|| ft_strcmp(str, "<<") == 0
+		|| ft_strcmp(str, ">>") == 0)
+		return (1);
+	return (0);
+}
+char	**clean_cmd(char **cmd)
+{
+	int	i;
+
+	i = 0;
+	while (cmd[i])
+	{
+		if (ft_strcmp(cmd[i], ">") == 0 || ft_strcmp(cmd[i], ">>") == 0 || ft_strcmp(cmd[i], "<") == 0 || ft_strcmp(cmd[i], "<<") == 0)
 		{
-            if (ft_strcmp(current->value, ">") == 0)
-                fd = open(current->next->value, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-			else if (ft_strcmp(current->value, ">>") == 0)
-                fd = open(current->next->value, O_WRONLY | O_CREAT | O_APPEND, 0644);
-			if (ft_strcmp(current->value, "<") == 0)
-                fd = open(current->next->value, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-            if (fd == -1) {
-                perror("open");
-                return -1;
-            }
-            dup2(fd, STDOUT_FILENO);
-            break;
-        }
-        current = current->next;
-    }
-	tokens = current;
-    return fd;
+			free(cmd[i]);
+			if (cmd[i + 1])
+				free(cmd[i++]);
+			continue ;
+		}
+		i++;
+	}
+	return (cmd);
+}
+void	handle_redirection(int type, char *file_name) {
+    int fd;
+
+	fd = -1;
+	//printf("heredoc?????\n");
+	if (type == IN_REDIR)
+		fd = open(file_name, O_RDONLY);
+	else if (type == APPEND_FILEOUT)
+		fd = open(file_name, O_WRONLY | O_CREAT | O_APPEND, 0644);
+	else if (ft_strcmp(file_name, "<") == 0)
+		fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	else if (type == HERE_DOC)
+	{
+		printf("heredoc\n");
+		fd = here_doc_open(file_name);
+	}
+	if (fd == -1) {
+		perror("open");
+		return ;
+	}
+	dup2(fd, STDOUT_FILENO);
 }
 
 
@@ -237,26 +272,19 @@ void	built_in(t_minishell *minishell)
 
 	curr = 0;
 	tmp = minishell->tokens;
-	printf("before pipe count\n");
 	pipes = pipe_count(minishell);
-	
-	printf("after pipe count\n");
-
-
 	printf("helloo builtin\n");
-	printf("pipe: %d\n", pipes);
+	printf("%d\n", pipes);
 	while (minishell->tokens && minishell->tokens->value)
 	{
-		printf("minishellllllll----->env---->%p\n\n\n", minishell->env);
 		minishell->tokens = pre_execve(minishell);
 		check_cmd(minishell);
 		envp = env_to_matrix(minishell);
-		printf("aa\n");
 		printf("cmd[%d] = %s\n", 0, minishell->cmd[0]);
 		
 		if (curr < pipes + 1)
 		{
-			if (pipes == 0)
+			if (pipes == 0 && isbuiltin(minishell->cmd[0]) == 1)
 			{
 				if (ft_strcmp(minishell->cmd[0], "cd") == 0)
 				{
@@ -295,13 +323,19 @@ void	built_in(t_minishell *minishell)
 				}
 			}
 			else
+			{
 				pid = fork();
+				printf("Narekkyanq\n");
+				//exit(1);
 				if (pid == 0)
 				{
-					handle_redirection(minishell->tokens);
+					printf("tokens: %p\n", minishell->tokens);
+					//handle_redirection(minishell->cmd);
+					exit(1);
 					if (execve(minishell->cmd[0], minishell->cmd, envp) == -1) //because execve exits after running the command and we don't need to quit from the main proccess (program) that's why it is put in fork
-						perror("execve failed");
+						perror("aaaaaaaaa execve failed");
 				}
+			}
 			curr++;
 		}
 		//printf("here ?? \n");

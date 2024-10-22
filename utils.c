@@ -87,6 +87,8 @@ int	ft_strcmp(const char *s1, const char *s2)
 	unsigned char	*str1;
 	unsigned char	*str2;
 
+	if (!s1 || !s2)
+		return (1);
 	str1 = (unsigned char *)s1;
 	str2 = (unsigned char *)s2;
 	i = 0;
@@ -110,4 +112,14 @@ void	ft_putstr_fd(char const *s, int fd)
 		write(fd, &s[i], 1);
 		i++;
 	}
+}
+
+int	isbuiltin(char *cmd_name)
+{
+	if (ft_strcmp(cmd_name, "cd") == 0
+		|| ft_strcmp(cmd_name, "export") == 0
+		|| ft_strcmp(cmd_name, "unset") == 0
+		|| ft_strcmp(cmd_name, "exit") == 0)
+		return (1);
+	return (0);
 }

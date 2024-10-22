@@ -11,6 +11,7 @@ int	check_in_env(t_env *env, char *str)
 			return 0;
 		env = env->next;
 	}
+	env = tmp;
 	return (1);
 }
 

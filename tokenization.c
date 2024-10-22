@@ -369,11 +369,8 @@ t_split *remove_empty_nodes(t_split *item) {
 
 int check_operation(t_split **item)
 {
-    t_split *prev;
 	t_split	*temp;
 
-
-    prev = NULL;
 	//printf("after remove empty nodes \n");
 	// while (tmp && tmp->value)
 	// {
@@ -414,7 +411,7 @@ void	tokenization(char *input, t_minishell *minishell)
 	int		i;
 	int		start;
 	int		end;
-	int		quote_count;
+	//int		//quote_count;
 	char	current_quote;
 	t_split	*item;
 	t_split	*tmp;
@@ -426,13 +423,13 @@ void	tokenization(char *input, t_minishell *minishell)
 	i = 0;
 	end = 0;
 	start = 0;
-	quote_count = 0;
+	//quote_count = 0;
 	printf("\ninput: %s\n\n\n", input);
 	while (input && input[i])
 	{
 		if (input[i] == '"' || input[i] == 39)
 		{
-			quote_count++;
+			//quote_count++;
 			if (i == 0 || (i > 0 && input[i - 1] == ' '))
 				start = i;
 			current_quote = input[i];
@@ -443,7 +440,7 @@ void	tokenization(char *input, t_minishell *minishell)
 			{
 				exit(1 && write(2, "Error4\n", 7));
 			}
-			quote_count++;
+			//quote_count++;
 			if (input[i] == current_quote && (input[i + 1] == '\0' || input[i + 1] == ' ' || input[i + 1] == '|' || input[i + 1] == '<' || input[i + 1] == '>'))
 			{
 				end = i;
@@ -483,7 +480,7 @@ void	tokenization(char *input, t_minishell *minishell)
 			i++;
 		if (input[i] == '"' || input[i] == 39)
 		{
-			quote_count++;
+			//quote_count++;
 			current_quote = input[i];
 			continue ;
 		}

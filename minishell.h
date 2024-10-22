@@ -82,5 +82,9 @@ void	free_t_env(t_env *env);
 void	free_t_split(t_split *tokens);
 void	export_bulki(t_minishell *minishell, char **envp);
 void	merge_sort(char **arr, int left, int right);
+int     here_doc_open(char *limiter);
+int     isbuiltin(char *cmd_name);
+void	handle_redirection(int type, char *file_name);
+int     check_redir(char *str);
 
 #endif

@@ -372,7 +372,6 @@ int check_operation(t_split **item)
     t_split *prev;
 	t_split	*temp;
 
-	temp = *item;
 
     prev = NULL;
 	//printf("after remove empty nodes \n");
@@ -384,6 +383,8 @@ int check_operation(t_split **item)
     (*item) = remove_empty_nodes((*item));
     if ((*item) && (*item)->type == S_PIPE)
         return (1); // Error handling
+	printf("ste ancav\n");
+	temp = *item;
     while (temp && temp->value)
     {
         if (temp->next)
@@ -402,6 +403,7 @@ int check_operation(t_split **item)
         }
         temp = temp->next;
     }
+	printf("pti vor miangamic ga ste\n");
 	printf("ura????\n");
     return (0); // No errors
 }

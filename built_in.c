@@ -283,24 +283,23 @@ void	built_in(t_minishell *minishell)
 					printf("export is found\n");
 					export_bulki(minishell, envp);
 				}
+				if (ft_strcmp(minishell->cmd[0], "echo") == 0)
+				{
+					printf("echo is found\n");
+					echo(minishell->cmd);
+				}
+				else if (ft_strcmp(minishell->cmd[0], "pwd") == 0)
+				{
+					printf("pwd is found\n");
+					pwd();
+				}
 			}
 			else
 				pid = fork();
-				// ft_dups();
 				if (pid == 0)
 				{
 					handle_redirection(minishell->tokens);
-					if (ft_strcmp(minishell->cmd[0], "echo") == 0)
-					{
-						printf("echo is found\n");
-						echo(minishell->cmd);
-					}
-					else if (ft_strcmp(minishell->cmd[0], "pwd") == 0)
-					{
-						printf("pwd is found\n");
-						pwd();
-					}
-					else if (execve(minishell->cmd[0], minishell->cmd, envp) == -1)
+					if (execve(minishell->cmd[0], minishell->cmd, envp) == -1) //because execve exits after running the command and we don't need to quit from the main proccess (program) that's why it is put in fork
 						perror("execve failed");
 				}
 			curr++;

@@ -5,7 +5,7 @@ TARGET = minishell
 CC = gcc
 
 # Compiler flags
-CFLAGS = # -Wall -Wextra -Werror -I. -g3 -fsanitize=address
+CFLAGS = -Wall -Wextra -Werror -I. -g3 -fsanitize=address
 
 # Libraries to link with
 LIBS = -lreadline -lncurses
@@ -25,7 +25,8 @@ SRCS = minishell.c \
 		export.c \
 		merge_sort.c \
 		free.c \
-		here_doc.c
+		here_doc.c \
+		pipex.c
 		
 # Object files
 OBJS = $(SRCS:.c=.o)
@@ -38,7 +39,7 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LIBS)
 
 # Rule to compile source files into object files
-%.o: %.c
+%.o: %.c Makefile minishell.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Clean up generated files

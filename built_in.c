@@ -9,33 +9,37 @@ t_split	*pre_execve(t_minishell *minishell)
 
 	tmp = minishell->tokens;
 	len = 0;
-	while (tmp && tmp->value && (tmp->type == WORD || tmp->type != S_PIPE))
+	while (minishell->tokens && minishell->tokens->value && (minishell->tokens->type == WORD || minishell->tokens->type != S_PIPE))
 	{
-		if (check_redir(tmp->value))
+		if (check_redir(minishell->tokens->value))
 			len -= 2;
 		len++;
-		tmp = tmp->next;
+		minishell->tokens = minishell->tokens->next;
+		printf("tokens->%p\n",minishell->tokens);
 	}
-	tmp = minishell->tokens;
 	matrix = (char **)malloc(sizeof(char *) * (len + 1));
 	if (!matrix)
 		return (NULL);
 	i = 0;
 
-	while (minishell->tokens && minishell->tokens->value && i < len)
+	printf("ste1\n");
+	while (tmp && tmp->value && tmp->type != S_PIPE)
 	{
-		if (!check_redir(minishell->tokens->value))
+		if (!check_redir(tmp->value))
 		{
-			matrix[i] = ft_strdup(minishell->tokens->value);
+			matrix[i] = ft_strdup(tmp->value);
 			i++;
 		}
 		else
 		{
-			handle_redirection(minishell->tokens->type, minishell->tokens->next->value);
-			minishell->tokens = minishell->tokens->next;
+			printf("vabshe stexi durs galis es?\n");
+			handle_redirection(minishell, tmp->type, tmp->next->value);
+			printf("iharke voch\n");
+			tmp = tmp->next;
 		}
-		minishell->tokens = minishell->tokens->next;
+		tmp = tmp->next;
 	}
+	printf("ste2\n");
 	matrix[len] = NULL;
 	i = 0;
 	while (matrix[i] != NULL)
@@ -46,9 +50,9 @@ t_split	*pre_execve(t_minishell *minishell)
 	minishell->cmd = matrix;
 	// printf("SSSSSSSSSSSSSSSSSSS------>%s\n", minishell->cmd[0]);
 	//printf("help-------->%p\n" , minishell->tokens);
-	if (tmp->type == S_PIPE)
+	if (tmp && tmp->type == S_PIPE)
 		minishell->tokens = minishell->tokens->next;
-	printf("minishell->tokens: %p\n", &minishell->tokens:)
+	printf("minishell->tokens: %p\n", minishell->tokens);
 	return (minishell->tokens);
 }
 int	search_slash(char *str)
@@ -238,27 +242,24 @@ char	**clean_cmd(char **cmd)
 	}
 	return (cmd);
 }
-void	handle_redirection(int type, char *file_name) {
-    int fd;
-
-	fd = -1;
+void	handle_redirection(t_minishell *minishell, int type, char *file_name) {
 	//printf("heredoc?????\n");
 	if (type == IN_REDIR)
-		fd = open(file_name, O_RDONLY);
+		minishell->fd_in = open(file_name, O_RDONLY);
 	else if (type == APPEND_FILEOUT)
-		fd = open(file_name, O_WRONLY | O_CREAT | O_APPEND, 0644);
-	else if (ft_strcmp(file_name, "<") == 0)
-		fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		minishell->fd_out = open(file_name, O_WRONLY | O_CREAT | O_APPEND, 0644);
+	else if (type == OUT_REDIR)
+		minishell->fd_out = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	else if (type == HERE_DOC)
 	{
 		printf("heredoc\n");
-		fd = here_doc_open(file_name);
-	}
-	if (fd == -1) {
-		perror("open");
+		minishell->fd_heredoc = here_doc_open(file_name);
 		return ;
 	}
-	dup2(fd, STDOUT_FILENO);
+	// if (minishell->fd == -1) {
+	// 	perror("open");
+	// 	return ;
+	// }
 }
 
 
@@ -273,6 +274,8 @@ void	built_in(t_minishell *minishell)
 	curr = 0;
 	tmp = minishell->tokens;
 	pipes = pipe_count(minishell);
+	//pipe
+	init_pipe_fd(minishell, pipes);
 	printf("helloo builtin\n");
 	printf("%d\n", pipes);
 	while (minishell->tokens && minishell->tokens->value)
@@ -325,21 +328,26 @@ void	built_in(t_minishell *minishell)
 			else
 			{
 				pid = fork();
-				printf("Narekkyanq\n");
 				//exit(1);
+				// if (dup2(minishell->fd, 1) == -1)
+				// 	exit(1);
+				//printf("%d\n", minishell->fd);
 				if (pid == 0)
 				{
+					ft_dups(minishell, pipes, curr);
+					//dup2(minishell->fd, 1);
+					//dprintf(2, "aaaa\n");
 					printf("tokens: %p\n", minishell->tokens);
 					//handle_redirection(minishell->cmd);
-					exit(1);
 					if (execve(minishell->cmd[0], minishell->cmd, envp) == -1) //because execve exits after running the command and we don't need to quit from the main proccess (program) that's why it is put in fork
-						perror("aaaaaaaaa execve failed");
+						exit(1);//error and exit maybe
 				}
 			}
 			curr++;
 		}
-		//printf("here ?? \n");
+		printf("here ?? \n");
 		waitpid(pid, NULL, 0);
+		printf("baaaa here ?? \n");
 	
 		//continue;
 		//minishell->tokens = minishell->tokens->next;

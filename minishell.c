@@ -89,6 +89,9 @@ int main(int argc, char **argv, char **env)
 		if (!minishell)
 			return (1);
 		minishell->env = env_copy(env);
+		minishell->fd_in = -1;
+		minishell->fd_out = -1;
+		minishell->fd_heredoc = -1;
 		while (input)
 		{
 			input = readline("MINISHELL GJUK: ");

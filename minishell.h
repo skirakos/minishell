@@ -51,7 +51,10 @@ typedef	struct s_minishell {
 	t_split	*tokens;
 	char	**cmd;
 	t_env	*env;
-
+    int     (*fd)[2];
+    int     fd_in;
+    int     fd_out;
+    int     fd_heredoc;
 } t_minishell;
 
 void	tokenization(char *input, t_minishell *minishell);
@@ -84,7 +87,8 @@ void	export_bulki(t_minishell *minishell, char **envp);
 void	merge_sort(char **arr, int left, int right);
 int     here_doc_open(char *limiter);
 int     isbuiltin(char *cmd_name);
-void	handle_redirection(int type, char *file_name);
+void	handle_redirection(t_minishell *minishell, int type, char *file_name);
 int     check_redir(char *str);
-
+int     init_pipe_fd(t_minishell *minishell, int pipe_count);
+void    ft_dups(t_minishell *minishell, int pipes, int curr);
 #endif

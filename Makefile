@@ -26,7 +26,8 @@ SRCS = minishell.c \
 		merge_sort.c \
 		free.c \
 		here_doc.c \
-		pipex.c
+		pipex.c \
+		redirs.c
 		
 # Object files
 OBJS = $(SRCS:.c=.o)

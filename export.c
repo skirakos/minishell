@@ -26,11 +26,8 @@ void	exec_export(t_minishell *minishell)
 	while (minishell->cmd[i])
 	{
 		split = ft_split(minishell->cmd[i], '=');
-		printf("split[0]=%s --- split[1]=%s\n", split[0], split[1]);
-		printf("matrix_len(split)=%d\n", matrix_len(split));
 		if (matrix_len(split) == 1 && !check_in_env(minishell->env, split[0]))
 		{
-			printf("i am here1\n");
 			while (tmp->next)
 				tmp = tmp->next;
 			tmp->next = malloc(sizeof(t_env)); 
@@ -41,7 +38,6 @@ void	exec_export(t_minishell *minishell)
 		}
 		else if (matrix_len(split) == 2 && check_in_env(minishell->env, split[0]) == 1)
 		{
-			printf("i am here2\n");
 			while (tmp->next)
 				tmp = tmp->next;
 			tmp->next = malloc(sizeof(t_env));

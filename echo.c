@@ -23,8 +23,6 @@ void	echo(char **args)
 
 	i = 1;
 	newline = 0;
-	printf("hi from echo\n");
-	printf("cmd[%d] = %s\n", i, args[i]);
 	while (check_newline(args[i]) == 0)
 	{
 		newline = 1;

@@ -89,15 +89,15 @@ int main(int argc, char **argv, char **env)
 		if (!minishell)
 			return (1);
 		minishell->env = env_copy(env);
-		minishell->fd_in = -1;
-		minishell->fd_out = -1;
-		minishell->fd_heredoc = -1;
+		minishell->fd_in = 0;
+		minishell->fd_out = 1;
+		minishell->fd_heredoc = 0;
 		while (input)
 		{
 			input = readline("MINISHELL GJUK: ");
 			if(input)
 			{
-				printf("input: %s$\n", input);
+				//printf("input: %s$\n", input);
 				add_history(input);
 				tokenization(input, minishell);
 			}

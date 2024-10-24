@@ -91,4 +91,7 @@ void	handle_redirection(t_minishell *minishell, int type, char *file_name);
 int     check_redir(char *str);
 int     init_pipe_fd(t_minishell *minishell, int pipe_count);
 void    ft_dups(t_minishell *minishell, int pipes, int curr);
+void	redirs(t_minishell *minishell);
+void	close_fd(t_minishell *minishell, int pipe_count);
+
 #endif

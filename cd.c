@@ -39,7 +39,7 @@ char	*tilda(t_minishell *minishell)
 	home_path = ft_strdup(getenv("HOME"));
 	path = ft_strjoin(home_path, path);
 	free(home_path);
-	printf("path: %s\n", path);
+	//printf("path: %s\n", path);
 	return (path);
 }
 

@@ -29,7 +29,6 @@ void	unset(t_minishell *minishell)
 			free(node_to_delete->var);
 			free(node_to_delete->value);
 			free(node_to_delete);
-			printf("bn\n");
 			break ;
 		}
 		prev = minishell->env;

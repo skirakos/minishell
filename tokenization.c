@@ -8,7 +8,6 @@ char	*get_from_env(t_env *env, char *key)
 	{
 		if (!ft_strncmp(env->var, key, ft_strlen(env->var)))
 		{
-			printf("hey\n");
 			res = (char *)malloc(sizeof(char *) * (ft_strlen(env->value) + 1));
 			if (!res)
 				return (NULL);
@@ -19,12 +18,11 @@ char	*get_from_env(t_env *env, char *key)
 				j++;
 			}
 			res[j] = '\0';
-			printf("res: %s\n", res);
+			//printf("res: %s\n", res);
 			return (res);
 		}
 		env = env->next;
 	}
-	printf("durs eka\n");
 	return (NULL);
 }
 // char	*quote_remover_continue(char *value, int start, int end)
@@ -113,8 +111,8 @@ void quote_remover(t_split *item) {
             i++;
         }
         result[j] = '\0';
-        printf("Original: %s\n", item->value);
-        printf("Cleaned: %s\n", result);
+        // printf("Original: %s\n", item->value);
+        // printf("Cleaned: %s\n", result);
         free(item->value);
         item->value = malloc(ft_strlen(result) + 1);
         if (item->value) {
@@ -135,7 +133,6 @@ char	*merge(char *before_key, char *dollar_value, char *after_key)
 	res = ft_strjoin(tmp, after_key);
 	free(tmp);
 	free(after_key);
-	printf("res-->%s$\n",res);
 	return (res);
 }
 
@@ -154,13 +151,9 @@ char	*sedastan(char *str, int i, t_env *env, int end)
 	end = (i) - 1;
 	//printf("enddddd: %d\n", end);
 	key = ft_substr(str, start, end + 1);
-	printf("keeeeyyyy: %s\n", key);
 	//printf("i: %d\n", *i);
 	after_key = ft_substr(str, end + 1, ft_strlen(str));
 	dollar_value = get_from_env(env, key);
-	printf("before_key: %s$\n", before_key);
-
-	printf("after_key: %s$\n", after_key);
 	return (merge(before_key, dollar_value, after_key));
 }
 void	dollar_sign(t_split *item, t_env *env)
@@ -266,15 +259,12 @@ void	ft_strcut(t_split *item, char *input, int start, int end)
 	int	i;
 
 	i = 0;
-	printf("lllllllllll\n\n");
 	item->value = malloc(end - start + 2);
 	if (!item->value)
 		return ;
-	printf("kkkkkkkklllllllllll\n\n");
 	while (input[i] && start <= end)
 	{
 		item->value[i] = input[start];
-		printf("item->value[i] = input[start]: %c = %c\n", item->value[i], input[start]);
 		i++;
 		start++;
 	}
@@ -331,14 +321,12 @@ t_split *remove_empty_nodes(t_split *item) {
     while (current != NULL && (current->value == NULL || current->value[0] == '\0')) {
         t_split *temp = current;  // Temporary pointer to the current node
         current = current->next;  // Move to the next node
-		printf("current->next pti NULL lini %p\n", current);
         free(temp->value);        // Free the value (if it's allocated)
         free(temp);               // Free the node itself
     }
 
     // If all nodes were removed, return NULL
     if (current == NULL) {
-		printf("aysinqn stex pti mtni\n");
 	    return NULL;
     }
 
@@ -380,7 +368,6 @@ int check_operation(t_split **item)
     (*item) = remove_empty_nodes((*item));
     if ((*item) && (*item)->type == S_PIPE)
         return (1); // Error handling
-	printf("ste ancav\n");
 	temp = *item;
     while (temp && temp->value)
     {
@@ -400,8 +387,6 @@ int check_operation(t_split **item)
         }
         temp = temp->next;
     }
-	printf("pti vor miangamic ga ste\n");
-	printf("ura????\n");
     return (0); // No errors
 }
 
@@ -424,7 +409,6 @@ void	tokenization(char *input, t_minishell *minishell)
 	end = 0;
 	start = 0;
 	//quote_count = 0;
-	printf("\ninput: %s\n\n\n", input);
 	while (input && input[i])
 	{
 		if (input[i] == '"' || input[i] == 39)
@@ -444,17 +428,14 @@ void	tokenization(char *input, t_minishell *minishell)
 			if (input[i] == current_quote && (input[i + 1] == '\0' || input[i + 1] == ' ' || input[i + 1] == '|' || input[i + 1] == '<' || input[i + 1] == '>'))
 			{
 				end = i;
-				printf("mi bannn\n");
 				item->next = malloc(sizeof(t_split));
 				if (!item->next)
 					return ;
-				printf("start: %d ---- end: %d\n", start, end);
 				ft_strcut(item->next, input, start, end);
 				start = ++end;
 				current_quote = 0;
 				item = item->next;
 				item->next = NULL;
-				printf("item->valueeeeeeee : %s\n\n", item->value);
 				i++;
 				continue ;
 			}
@@ -501,17 +482,15 @@ void	tokenization(char *input, t_minishell *minishell)
 		dollar_sign(item, minishell->env);
 		check_operation(&item);
 		tmp = item;
-		printf("itemY xi NULLLL chi????? %p\n", item);
 		minishell->tokens = item;
-		printf("beforeeeee built_in %p\n", minishell->tokens);
 		if (minishell->tokens && minishell->tokens->value)
 			built_in(minishell);
 		i = 0;
-		while (tmp)
-		{
-			printf("%s$\n", tmp->value);
-			tmp = tmp->next;
-		}
+		// while (tmp)
+		// {
+		// 	printf("%s$\n", tmp->value);
+		// 	tmp = tmp->next;
+		// }
 	}
 }
 
@@ -553,27 +532,21 @@ void	dollar(t_split	*item, t_env *env)
 
 int	check_key_in_env(t_env *env, char *key, t_split *item)
 {
-	printf("key: %s\n", key);
 	while (env)
 	{
 		if (!ft_strncmp(env->var, key, ft_strlen(env->var)))
 		{
-			printf("check_key_in_env: %s\n", item->value);
 			int	i = 0;
 			while (item->value[i] && env->value[i])
 			{
 				item->value[i] = env->value[i];
 				i++;
 			}
-			printf("check_key_in_env: %s\n", item->value);
 			return (1);
 		}
 		env = env->next;
 	}
-	printf("freee\n");
 	free(item->value);
 	item->value = NULL;
-	printf("item->value: %s\n", item->value);
-	printf("freee2\n");
 	return (-1);
 }

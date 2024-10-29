@@ -25,63 +25,6 @@ char	*get_from_env(t_env *env, char *key)
 	}
 	return (NULL);
 }
-// char	*quote_remover_continue(char *value, int start, int end)
-// {
-// 	int	i;
-// 	int	j;
-// 	char	*str;
-
-// 	str = malloc(ft_strlen(value) - 1);
-// 	i = 0;
-// 	j = 0;
-// 	printf("quote_remover_continue\n");
-// 	while (value[i])
-// 	{
-// 		if (i != start && i != end)
-// 		{
-// 			str[j] = value[i];
-// 			j++;
-// 		}
-// 		i++;
-// 	}
-// 	str[j] = '\0';
-// 	return (str);
-// 	printf("quote_remover_str?????: %s\n", str);
-// }
-
-// void	quote_remover(t_split *item)
-// {
-// 	int		i;
-// 	int		startq;
-// 	int		endq;
-// 	char	curr;
-
-// 	startq = 0;
-// 	endq = 0;
-// 	printf("charcharchar: %s\n", item->value);
-// 	while (item && item->value)
-// 	{
-// 		i = 0;
-// 		while (item->value[i])
-// 		{
-// 			if (item->value[i] == '"' || item->value[i] == 39)
-// 			{
-// 				curr = item->value[i];
-// 				startq = i;
-// 				i++;
-// 				while (item->value[i] && item->value[i] != curr)
-// 					i++;
-// 				endq = i;
-// 				printf("endq: %d\n", endq);
-// 				item->value = quote_remover_continue(item->value, startq, endq);
-// 				continue ;
-// 			}
-// 			i++;
-// 		}
-// 		item = item->next;
-// 	}
-// 	printf("quote_remoooooover\n");
-// }
 
 void quote_remover(t_split *item) {
 	int		len;
@@ -111,8 +54,6 @@ void quote_remover(t_split *item) {
             i++;
         }
         result[j] = '\0';
-        // printf("Original: %s\n", item->value);
-        // printf("Cleaned: %s\n", result);
         free(item->value);
         item->value = malloc(ft_strlen(result) + 1);
         if (item->value) {
@@ -214,43 +155,46 @@ void type_operator(t_split **item, char *input, int *i)
     (*item) = (*item)->next;
     (*item)->next = NULL; // Initialize next pointer
 
-    switch (input[*i])
-    {
-        case '|':
-            (*item)->value = ft_strdup("|");
-            (*item)->type = S_PIPE;
-            break;
-        case '<':
-            if (input[*i + 1] == '<')
-            {
-                (*item)->value = ft_strdup("<<");
-                (*item)->type = HERE_DOC;
-                (*i)++;
-            }
-            else
-            {
-                (*item)->value = ft_strdup("<");
-                (*item)->type = IN_REDIR;
-            }
-            break;
-        case '>':
-            if (input[*i + 1] == '>')
-            {
-                (*item)->value = ft_strdup(">>");
-                (*item)->type = APPEND_REDIR;
-                (*i)++;
-            }
-            else
-            {
-                (*item)->value = ft_strdup(">");
-                (*item)->type = OUT_REDIR;
-            }
-            break;
-        default:
-            free((*item)->next);
-            (*item)->next = NULL;
-            return;
-    }
+    if (input[*i] == '|') 
+	{
+		(*item)->value = ft_strdup("|");
+		(*item)->type = S_PIPE;
+	} 
+	else if (input[*i] == '<') 
+	{
+		if (input[*i + 1] == '<') 
+		{
+			(*item)->value = ft_strdup("<<");
+			(*item)->type = HERE_DOC;
+			(*i)++;
+		} 
+		else 
+		{
+			(*item)->value = ft_strdup("<");
+			(*item)->type = IN_REDIR;
+		}
+	} 
+	else if (input[*i] == '>') 
+	{
+		if (input[*i + 1] == '>') 
+		{
+			(*item)->value = ft_strdup(">>");
+			(*item)->type = APPEND_REDIR;
+			(*i)++;
+		} 
+		else 
+		{
+			(*item)->value = ft_strdup(">");
+			(*item)->type = OUT_REDIR;
+		}
+	} 
+	else 
+	{
+		free((*item)->next);
+		(*item)->next = NULL;
+		return;
+	}
+
 }
 
 
@@ -312,45 +256,38 @@ void	ft_strcut(t_split *item, char *input, int start, int end)
 
 
 
-t_split *remove_empty_nodes(t_split *item) {
+t_split	*remove_empty_nodes(t_split *item)
+{
     t_split *current = item;
     t_split *prev = NULL;
-    t_split *head = item; // Keep track of the head of the list
-
+    t_split *head = item;
     // Handle the case where the head (and consecutive nodes) are empty or NULL
     while (current != NULL && (current->value == NULL || current->value[0] == '\0')) {
-        t_split *temp = current;  // Temporary pointer to the current node
-        current = current->next;  // Move to the next node
-        free(temp->value);        // Free the value (if it's allocated)
-        free(temp);               // Free the node itself
+        t_split *temp = current;
+        current = current->next;
+        free(temp->value);
+        free(temp);
     }
-
-    // If all nodes were removed, return NULL
     if (current == NULL) {
 	    return NULL;
     }
 
-    // Set the new head if it's not empty
     head = current;
     prev = current;
     current = current->next;
-
-    // Now process the rest of the list
     while (current != NULL) {
-        if (current->value == NULL || current->value[0] == '\0') {
-            // Node is empty, remove it
-            prev->next = current->next; // Skip over the current node
-            free(current->value);       // Free the value
-            free(current);              // Free the node itself
-            current = prev->next;       // Move to the next node
+        if (current->value == NULL || current->value[0] == '\0')
+		{
+            prev->next = current->next;
+            free(current->value);
+            free(current);
+            current = prev->next;
         } else {
-            // Move to the next node
             prev = current;
             current = current->next;
         }
     }
-
-    return head; // Return the new head of the list
+    return head;
 }
 
 
@@ -482,10 +419,16 @@ void	tokenization(char *input, t_minishell *minishell)
 		dollar_sign(item, minishell->env);
 		check_operation(&item);
 		tmp = item;
+		syntax(item);
+		item = tmp;
+		free(tmp);
+		tmp = item;
 		minishell->tokens = item;
-		if (minishell->tokens && minishell->tokens->value)
+		if (minishell->tokens && minishell->tokens->value){
+			//printf("here>>\n");
 			built_in(minishell);
-		i = 0;
+		}
+		// i = 0;
 		// while (tmp)
 		// {
 		// 	printf("%s$\n", tmp->value);

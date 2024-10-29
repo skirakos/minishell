@@ -236,7 +236,6 @@ void	wait_processes(t_minishell *minishell, int pipes) // to wait every child pr
 		return ;
 	while (i < pipes + 1)
 	{
-		printf("Narek\n");
 		waitpid(minishell->pid[i], &exit_status, 0);
 		if (WIFEXITED(exit_status))
 			g_exit_status = WEXITSTATUS(exit_status);
@@ -259,7 +258,7 @@ void built_in(t_minishell *minishell)
 	pipes = pipe_count(minishell);
 	minishell->pid = malloc(sizeof(pid_t) * (pipes + 1));
 	init_pipe_fd(minishell, pipes);
-	printf("pipe count: %d\n", pipes);
+	printf("builtin\n");
 	while (minishell->tokens && minishell->tokens->value)
 	{
 		minishell->tokens = pre_execve(minishell);
@@ -322,15 +321,10 @@ void built_in(t_minishell *minishell)
 					} // because execve exits after running the command and we don't need to quit from the main proccess (program) that's why it is put in fork
 				}
 				else
-				{
-
 					minishell->pid[curr] = pid;
-					printf("pid: %d ---- %d\n", minishell->pid[curr], pid);
-				}
 			}
 			curr++;
 		}
-		printf("cmd[0]: %s\n", minishell->cmd[0]);
 	}
 	close_fd(minishell,pipes);
 	wait_processes(minishell, pipes);

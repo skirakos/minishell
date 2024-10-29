@@ -1,13 +1,16 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-# include <readline/readline.h>
-# include <readline/history.h>
+# include <stdio.h> //must be put before including readline
 # include <stdlib.h>
-# include <stdio.h>
+# include <signal.h>
 # include <unistd.h>
 # include <fcntl.h>
+# include <termios.h>
 # include <limits.h>
+# include <readline/readline.h>
+# include <readline/history.h>
+
 
 extern int g_exit_status;
 
@@ -55,6 +58,7 @@ typedef	struct s_minishell {
     int     fd_in;
     int     fd_out;
     int     fd_heredoc;
+    pid_t   *pid;
 } t_minishell;
 
 void	tokenization(char *input, t_minishell *minishell);
@@ -93,5 +97,6 @@ int     init_pipe_fd(t_minishell *minishell, int pipe_count);
 void    ft_dups(t_minishell *minishell, int pipes, int curr);
 void	redirs(t_minishell *minishell);
 void	close_fd(t_minishell *minishell, int pipe_count);
+void    signals();
 
 #endif

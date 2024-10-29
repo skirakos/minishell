@@ -94,7 +94,8 @@ int main(int argc, char **argv, char **env)
 		minishell->fd_heredoc = 0;
 		while (input)
 		{
-			input = readline("MINISHELL GJUK: ");
+			signals();
+			input = readline("\033[1;90m⚙️  MINISHELL GJUK\033[0m: ");
 			if(input)
 			{
 				//printf("input: %s$\n", input);

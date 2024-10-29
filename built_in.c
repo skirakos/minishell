@@ -172,8 +172,9 @@ int pipe_count(t_minishell *minishell)
 	t_split *tmp;
 	tmp = minishell->tokens;
 	pipe_count = 0;
-	if (!minishell->tokens || minishell->tokens->value)
+	if (!minishell->tokens || !minishell->tokens->value)
 	{
+		printf("return \n");
 		return (0);
 	}
 	while (minishell && minishell->tokens)
@@ -225,6 +226,26 @@ void handle_redirection(t_minishell *minishell, int type, char *file_name)
 	}
 }
 
+void	wait_processes(t_minishell *minishell, int pipes) // to wait every child proccess of each main proccess
+{
+	int		i;
+	int		exit_status;
+
+	i = 0;
+	if (pipes == 0 && is_builtin(minishell->cmd[0]) == 1)
+		return ;
+	while (i < pipes + 1)
+	{
+		printf("Narek\n");
+		waitpid(minishell->pid[i], &exit_status, 0);
+		if (WIFEXITED(exit_status))
+			g_exit_status = WEXITSTATUS(exit_status);
+		else if (WIFSIGNALED(exit_status))
+			g_exit_status = 128 + WTERMSIG(exit_status);
+		i++;
+	}
+}
+
 void built_in(t_minishell *minishell)
 {
 	t_split *tmp;
@@ -236,7 +257,9 @@ void built_in(t_minishell *minishell)
 	curr = 0;
 	tmp = minishell->tokens;
 	pipes = pipe_count(minishell);
+	minishell->pid = malloc(sizeof(pid_t) * (pipes + 1));
 	init_pipe_fd(minishell, pipes);
+	printf("pipe count: %d\n", pipes);
 	while (minishell->tokens && minishell->tokens->value)
 	{
 		minishell->tokens = pre_execve(minishell);
@@ -292,14 +315,25 @@ void built_in(t_minishell *minishell)
 						env(minishell);
 						exit(1);
 					}
-					else if (execve(minishell->cmd[0], minishell->cmd, envp) == -1) // because execve exits after running the command and we don't need to quit from the main proccess (program) that's why it is put in fork
+					else if (execve(minishell->cmd[0], minishell->cmd, envp) == -1)
+					{
+						//printf("execveee\n");
 						exit(1); // error and exit maybe
+					} // because execve exits after running the command and we don't need to quit from the main proccess (program) that's why it is put in fork
+				}
+				else
+				{
+
+					minishell->pid[curr] = pid;
+					printf("pid: %d ---- %d\n", minishell->pid[curr], pid);
 				}
 			}
 			curr++;
 		}
-		waitpid(pid, NULL, 0);
+		printf("cmd[0]: %s\n", minishell->cmd[0]);
 	}
+	close_fd(minishell,pipes);
+	wait_processes(minishell, pipes);
 	minishell->fd_in = 0;
 	minishell->fd_out = 1;
 	minishell->tokens = tmp;

@@ -98,5 +98,6 @@ void    ft_dups(t_minishell *minishell, int pipes, int curr);
 void	redirs(t_minishell *minishell);
 void	close_fd(t_minishell *minishell, int pipe_count);
 void    signals();
+void	syntax_check(t_split *tokens);
 
 #endif

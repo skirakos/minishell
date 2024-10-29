@@ -30,7 +30,8 @@ SRCS = minishell.c \
 		here_doc.c \
 		pipex.c \
 		redirs.c \
-		signals.c
+		signals.c \
+		syntax.c
 		
 # Object files
 OBJS = $(SRCS:.c=.o)

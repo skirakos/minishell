@@ -419,7 +419,7 @@ void	tokenization(char *input, t_minishell *minishell)
 		dollar_sign(item, minishell->env);
 		check_operation(&item);
 		tmp = item;
-		syntax(item);
+		syntax_check(item);
 		item = tmp;
 		free(tmp);
 		tmp = item;

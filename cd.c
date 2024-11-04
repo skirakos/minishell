@@ -52,7 +52,9 @@ void	cd(t_minishell *minishell)
 	if (getcwd(old_pwd, PATH_MAX) != NULL)
 		update_env(minishell->env, old_pwd, 0);
 	if (!minishell->cmd[1] || ft_strcmp(minishell->cmd[1], "~") == 0 || ft_strcmp(minishell->cmd[1], "~/") == 0)
-		path = getenv("HOME");
+	{	path = getenv("HOME");
+		perror_exit(g_exit_status, "cd: ");
+	}
 	else if (minishell->cmd[1][0] == '~')
 		path = tilda(minishell);
 	else
@@ -64,5 +66,5 @@ void	cd(t_minishell *minishell)
 			update_env(minishell->env, new_pwd, 1);
 	}
 	else
-		printf("access error\n");
+		perror_exit(g_exit_status, "cd: ");
 }

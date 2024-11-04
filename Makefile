@@ -31,7 +31,8 @@ SRCS = minishell.c \
 		pipex.c \
 		redirs.c \
 		signals.c \
-		syntax.c
+		syntax.c \
+		ft_itoa.c
 		
 # Object files
 OBJS = $(SRCS:.c=.o)

@@ -4,14 +4,19 @@ void	free_t_split(t_split *tokens)
 {
 	t_split	*tmp;
 
+	tmp = NULL;
+	printf("%p\n",tokens);
 	while (tokens)
 	{
 		tmp = tokens;
-		free(tokens->value);
+		// if (tokens && tokens->value)
+		// 	free(tokens->value);
 		tokens = tokens->next;
+		tmp->next = NULL;
 		free(tmp);
+		tmp = NULL;
 	}
-	free(tokens);
+	// free(tokens);
 }
 
 void	free_t_env(t_env *env)

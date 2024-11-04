@@ -11,6 +11,16 @@
 # include <readline/readline.h>
 # include <readline/history.h>
 
+# define INVALID_ARG_CNT 1
+# define SYNTAX_ERR 2
+# define FILEIN_ERR 3
+# define QUOTE_ERR 4
+# define MALLOC_ERR 5
+# define PIPE_ERR 6
+# define FORK_ERR 1
+# define DUP_ERR 8
+# define CMD_NOT_FOUND 9
+# define EXECVE_ERR 10
 
 extern int g_exit_status;
 
@@ -98,6 +108,9 @@ void    ft_dups(t_minishell *minishell, int pipes, int curr);
 void	redirs(t_minishell *minishell);
 void	close_fd(t_minishell *minishell, int pipe_count);
 void    signals();
-void	syntax_check(t_split *tokens);
+int		syntax_check(t_split *tokens);
+void	print_err(int exit_status, char *msg1, char *msg2, char *msg3);
+void	perror_exit(int err_code, char *msg);
+char	*ft_itoa(int n);
 
 #endif

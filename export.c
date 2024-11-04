@@ -8,11 +8,17 @@ int	check_in_env(t_env *env, char *str)
 	while(env && env->var)
 	{
 		if (ft_strcmp(env->var, str) == 0)
-			return 0;
+			return (0);
 		env = env->next;
 	}
 	env = tmp;
 	return (1);
+}
+int	is_digit(char c)
+{
+	if (c >= '0' && c <= '9')
+		return (1);
+	return (0);
 }
 
 void	exec_export(t_minishell *minishell)
@@ -25,8 +31,14 @@ void	exec_export(t_minishell *minishell)
 	tmp = minishell->env;
 	while (minishell->cmd[i])
 	{
+		if(minishell->cmd[i][0] == '=' || is_digit(minishell->cmd[i][0]))
+		{
+			print_err(1, "minishell: export: `", minishell->cmd[i], "': not a valid identifier");
+			i++;
+			continue;
+		}
 		split = ft_split(minishell->cmd[i], '=');
-		if (matrix_len(split) == 1 && !check_in_env(minishell->env, split[0]))
+		if (matrix_len(split) == 1 && check_in_env(minishell->env, split[0]))
 		{
 			while (tmp->next)
 				tmp = tmp->next;
@@ -57,8 +69,42 @@ void	exec_export(t_minishell *minishell)
 			tmp = tmp->next;
 		}
 		i++;
+		free_matrix(split, matrix_len(split));
 	}
-	
+}
+void	print_env(char **envp)
+{
+	int	i;
+	int	j;
+	int	flag;
+
+	i = 0;
+	while (envp[i])
+	{
+		j = 0;
+		flag = 0;
+		printf("declare -x ");
+		while (envp[i][j])
+		{
+			if (envp[i][j] == '=')
+			{
+				if (!envp[i][j + 1])
+					break;
+				else
+				{
+					printf("=\"");
+					flag = 1;
+					j++;
+				}
+			}
+			printf("%c", envp[i][j]);
+			j++;
+		}
+		if (flag == 1)
+			printf("\"");
+		printf("\n");
+		i++;
+	}
 }
 
 void	export_bulki(t_minishell *minishell, char **envp)
@@ -69,11 +115,12 @@ void	export_bulki(t_minishell *minishell, char **envp)
 	{
 		merge_sort(envp, 0, matrix_len(envp) - 1);
 		i = 0;
-		while (envp[i])
-		{
-			printf("declare -x %s\n", envp[i]);
-			i++;
-		}
+		print_env(envp);
+		// while (envp[i])
+		// {
+		// 	printf("declare -x %s\n", envp[i]);
+		// 	i++;
+		// }
 	}
 	else if (matrix_len(minishell->cmd) > 1)
 	{

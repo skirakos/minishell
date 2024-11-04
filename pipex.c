@@ -47,8 +47,8 @@ void    ft_dups(t_minishell *minishell, int pipes, int curr)
 	{
 		close_fd(minishell, pipes);
 		//printf("error ft_dups1\n");
-		//err_message("minishell: ", "pipe error\n", "");
-		exit(1);
+		//perror_exit(g_exit_status, "minishell: ");
+		//exit(1);
 	}
 	if (curr < pipes
 		&& dup2(minishell->fd[curr][1], 1) == -1)

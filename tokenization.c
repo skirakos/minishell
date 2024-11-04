@@ -87,6 +87,8 @@ char	*sedastan(char *str, int i, t_env *env, int end)
 
 	before_key = ft_substr(str, 0, i);
 	start = ++(i);
+	if (str[i] && str[i] == '?')
+		return (merge(before_key, ft_itoa(g_exit_status), ft_substr(str, i + 1, ft_strlen(str))));
 	while (str[i] && (str[i] != ' ' && str[i] != '/' && str[i] != '$' && str[i] != '"' && str[i] != 39 && str[i] != '>' && str[i] != '<' && str[i] != '>' && str[i] != '\0'))
 		(i)++;
 	end = (i) - 1;
@@ -126,6 +128,7 @@ void	dollar_sign(t_split *item, t_env *env)
 				if (!prev || (prev && prev->type != HERE_DOC))
 				{
 					str = sedastan(str, i, env, 0);
+					printf("\n%s\n",str);
 					continue ;
 				}
 			}
@@ -290,8 +293,6 @@ t_split	*remove_empty_nodes(t_split *item)
     return head;
 }
 
-
-
 int check_operation(t_split **item)
 {
 	t_split	*temp;
@@ -359,7 +360,9 @@ void	tokenization(char *input, t_minishell *minishell)
 				i++;
 			if (input[i] != current_quote)
 			{
-				exit(1 && write(2, "Error4\n", 7));
+				//free(input);
+				perror_exit(QUOTE_ERR, NULL);
+				return ;
 			}
 			//quote_count++;
 			if (input[i] == current_quote && (input[i + 1] == '\0' || input[i + 1] == ' ' || input[i + 1] == '|' || input[i + 1] == '<' || input[i + 1] == '>'))
@@ -419,10 +422,13 @@ void	tokenization(char *input, t_minishell *minishell)
 		dollar_sign(item, minishell->env);
 		check_operation(&item);
 		tmp = item;
-		syntax_check(item);
+		//printf("before syntax_check\n");
+		if (syntax_check(item) == 1)
+			return ;
+		//printf("after syntax_check\n");
 		item = tmp;
-		free(tmp);
-		tmp = item;
+		// free(tmp);
+		//tmp = item;
 		minishell->tokens = item;
 		if (minishell->tokens && minishell->tokens->value){
 			//printf("here>>\n");

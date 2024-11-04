@@ -258,7 +258,7 @@ void built_in(t_minishell *minishell)
 	pipes = pipe_count(minishell);
 	minishell->pid = malloc(sizeof(pid_t) * (pipes + 1));
 	init_pipe_fd(minishell, pipes);
-	printf("builtin\n");
+	//printf("builtin\n");
 	while (minishell->tokens && minishell->tokens->value)
 	{
 		minishell->tokens = pre_execve(minishell);
@@ -294,29 +294,35 @@ void built_in(t_minishell *minishell)
 			}
 			else
 			{
+				if (g_exit_status == 1)
+					continue;
 				pid = fork();
-				if (pid == 0)
+				if (pid == -1)
+					perror_exit(FORK_ERR, "Resource temporarily unavailable");
+				else if (pid == 0)
 				{
 					ft_dups(minishell, pipes, curr);
 					redirs(minishell);
 					if (ft_strcmp(minishell->cmd[0], "echo") == 0)
 					{
 						echo(minishell->cmd);
-						exit(1);
+						exit(0);
 					}
 					else if (ft_strcmp(minishell->cmd[0], "pwd") == 0)
 					{
 						pwd();
-						exit(1);
+						exit(0);
 					}
 					else if (ft_strcmp(minishell->cmd[0], "env") == 0)
 					{
 						env(minishell);
-						exit(1);
+						exit(0);
 					}
 					else if (execve(minishell->cmd[0], minishell->cmd, envp) == -1)
 					{
 						//printf("execveee\n");
+						//g_exit_status = 10;
+						//perror_exit(g_exit_status, )
 						exit(1); // error and exit maybe
 					} // because execve exits after running the command and we don't need to quit from the main proccess (program) that's why it is put in fork
 				}
@@ -332,3 +338,4 @@ void built_in(t_minishell *minishell)
 	minishell->fd_out = 1;
 	minishell->tokens = tmp;
 }
+

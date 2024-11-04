@@ -1,5 +1,7 @@
 #include "minishell.h"
 
+int	g_exit_status = 0;
+
 void	get_value(t_env **copy, char **env, int i, int *j)
 {
 	int	k;
@@ -80,7 +82,7 @@ int main(int argc, char **argv, char **env)
 {
 	char		*input;
 	t_minishell	*minishell;
-
+	
 	(void)argv;
 	input = ft_strdup("");
 	if (argc == 1)
@@ -94,6 +96,7 @@ int main(int argc, char **argv, char **env)
 		minishell->fd_heredoc = 0;
 		while (input)
 		{
+			//int g_exit_status = 0;
 			signals();
 			input = readline("\033[1;90m⚙️  MINISHELL GJUK\033[0m: ");
 			if(input)

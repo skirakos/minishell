@@ -128,7 +128,6 @@ void	dollar_sign(t_split *item, t_env *env)
 				if (!prev || (prev && prev->type != HERE_DOC))
 				{
 					str = sedastan(str, i, env, 0);
-					printf("\n%s\n",str);
 					continue ;
 				}
 			}

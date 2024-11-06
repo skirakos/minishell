@@ -1,4 +1,4 @@
-prefix=/Users/artyavet/Desktop/minishelllll/libraries/readline
+prefix=/Users/artyavet/Desktop/maximalminishell/libraries/readline
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include

@@ -65,7 +65,10 @@ void	perror_exit(int err_code, char *msg)
  		print_err(2, "minishell: pipe error\n", msg, "\n");
 	else if (err_code == QUOTE_ERR)
  		print_err(2, "minishell: quote error \n", NULL, NULL);
-	else if ()
+	else if (err_code == CMD_NOT_FOUND)
+		print_err(2, "minishell: ", msg, ": command not found\n");
+	else if (err_code == EXECVE_ERR)
+		print_err(2, "minishell: ", msg, ": execution failed\n");
 }
 int	syntax_check(t_split *tokens)
 {

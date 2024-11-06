@@ -22,7 +22,7 @@ topdir = ..
 srcdir = .
 
 
-prefix = /Users/artyavet/Desktop/minishelllll/libraries/readline
+prefix = /Users/artyavet/Desktop/maximalminishell/libraries/readline
 
 datarootdir = ${prefix}/share
 
@@ -49,7 +49,7 @@ RM = rm -f
 INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 
-BUILD_DIR = /Users/artyavet/Desktop/minishelllll/libraries/readline-8.2
+BUILD_DIR = /Users/artyavet/Desktop/maximalminishell/libraries/readline-8.2
 TEXINPUTDIR = $(srcdir)
 
 MAKEINFO    = LANGUAGE= makeinfo

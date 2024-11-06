@@ -47,6 +47,7 @@ t_split *pre_execve(t_minishell *minishell)
 		minishell->tokens = minishell->tokens->next;
 	return (minishell->tokens);
 }
+
 int search_slash(char *str)
 {
 	int i;
@@ -60,6 +61,7 @@ int search_slash(char *str)
 	}
 	return (-1);
 }
+
 char **env_to_matrix(t_minishell *minishell)
 {
 	int len;
@@ -100,8 +102,8 @@ char **env_to_matrix(t_minishell *minishell)
 int is_builtin(char *cmd)
 {
 	if (ft_strcmp(cmd, "echo") == 0 || ft_strcmp(cmd, "cd") == 0 || ft_strcmp(cmd, "pwd") == 0 || ft_strcmp(cmd, "export") == 0 || ft_strcmp(cmd, "unset") == 0 || ft_strcmp(cmd, "env") == 0 || ft_strcmp(cmd, "exit") == 0)
-		return (0);
-	return (1);
+		return (1);
+	return (0);
 }
 void check_cmd(t_minishell *minishell)
 {
@@ -128,23 +130,17 @@ void check_cmd(t_minishell *minishell)
 		if (access(minishell->cmd[0], X_OK) != 0)
 			return;
 	}
+	path = NULL;
 	while (minishell->env)
 	{
 		if (ft_strcmp(minishell->env->var, "PATH") == 0)
 			path = ft_split(minishell->env->value, ':');
 		minishell->env = minishell->env->next;
 	}
-	// i = 0;
-	// while (path[i])
-	// {
-	// 	printf("path[%d] = %s\n", i, path[i]);
-	// 	i++;
-	// }
-
 	i = 0;
-	while (path[i])
+	while (path && path[i])
 	{
-		if (is_builtin(minishell->cmd[0]))
+		if (!is_builtin(minishell->cmd[0]))
 		{
 			joined_path = ft_strjoin(path[i], "/");
 			tmp_join = joined_path;
@@ -164,7 +160,9 @@ void check_cmd(t_minishell *minishell)
 		i++;
 	}
 	minishell->env = tmp;
-	free_matrix(path, matrix_len(path));
+	// printf("hres\n");
+	if (path)
+		free_matrix(path, matrix_len(path));
 }
 int pipe_count(t_minishell *minishell)
 {
@@ -193,6 +191,7 @@ int check_redir(char *str)
 		return (1);
 	return (0);
 }
+
 char **clean_cmd(char **cmd)
 {
 	int i;
@@ -211,6 +210,7 @@ char **clean_cmd(char **cmd)
 	}
 	return (cmd);
 }
+
 void handle_redirection(t_minishell *minishell, int type, char *file_name)
 {
 	if (type == IN_REDIR)
@@ -232,7 +232,7 @@ void	wait_processes(t_minishell *minishell, int pipes) // to wait every child pr
 	int		exit_status;
 
 	i = 0;
-	if (pipes == 0 && is_builtin(minishell->cmd[0]) == 1)
+	if (pipes == 0 && isbuiltin(minishell->cmd[0]) == 1)
 		return ;
 	while (i < pipes + 1)
 	{
@@ -294,8 +294,6 @@ void built_in(t_minishell *minishell)
 			}
 			else
 			{
-				if (g_exit_status == 1)
-					continue;
 				pid = fork();
 				if (pid == -1)
 					perror_exit(FORK_ERR, "Resource temporarily unavailable");
@@ -303,7 +301,36 @@ void built_in(t_minishell *minishell)
 				{
 					ft_dups(minishell, pipes, curr);
 					redirs(minishell);
-					if (ft_strcmp(minishell->cmd[0], "echo") == 0)
+					if (access(minishell->cmd[0], X_OK) != 0 && !is_builtin(minishell->cmd[0]))
+					{
+						perror_exit(CMD_NOT_FOUND,minishell->cmd[0]);
+						exit (127);
+					}
+					else if (ft_strcmp(minishell->cmd[0], "cd") == 0)
+					{
+						cd(minishell);
+						exit(0);
+					}
+					else if (ft_strcmp(minishell->cmd[0], "env") == 0)
+					{
+						env(minishell);
+						exit(0);
+					}
+					else if (ft_strcmp(minishell->cmd[0], "unset") == 0)
+					{
+						unset(minishell);
+						exit(0);
+					}
+					else if (ft_strcmp(minishell->cmd[0], "exit") == 0)
+					{
+						exit_shell(minishell);
+					}
+					else if (ft_strcmp(minishell->cmd[0], "export") == 0)
+					{
+						export_bulki(minishell, envp);
+						exit(0);
+					}
+					else if (ft_strcmp(minishell->cmd[0], "echo") == 0)
 					{
 						echo(minishell->cmd);
 						exit(0);
@@ -320,9 +347,7 @@ void built_in(t_minishell *minishell)
 					}
 					else if (execve(minishell->cmd[0], minishell->cmd, envp) == -1)
 					{
-						//printf("execveee\n");
-						//g_exit_status = 10;
-						//perror_exit(g_exit_status, )
+						perror_exit(EXECVE_ERR, minishell->cmd[0]);
 						exit(1); // error and exit maybe
 					} // because execve exits after running the command and we don't need to quit from the main proccess (program) that's why it is put in fork
 				}

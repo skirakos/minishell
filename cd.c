@@ -59,12 +59,33 @@ void	cd(t_minishell *minishell)
 		path = tilda(minishell);
 	else
 		path = minishell->cmd[1];
+	if (access(path, F_OK) == -1)
+		print_err(2, "minishell: cd: ", path, ": No such file or directory\n");
+	else if (!is_directory(path))
+		print_err(2, "minishell: cd: ", path, ": Not a directory\n");
+	else if (access_directory(path) == 0)
+		print_err(2, "minishell: cd: ", path, ": Permission denied\n");
 	if (access(path, F_OK) == 0)
 	{
 		chdir(path);
 		if (getcwd(new_pwd, PATH_MAX) != NULL)
 			update_env(minishell->env, new_pwd, 1);
 	}
+}
+
+int	access_directory(const char	*path)
+{
+	if (access(path, R_OK | X_OK) != 0)
+		return (0);
 	else
-		perror_exit(g_exit_status, "cd: ");
+		return (1);
+}
+
+bool	is_directory(const char	*path)
+{
+	struct stat	path_stat;
+
+	if (stat(path, &path_stat) != 0)
+		return (false);
+	return (S_ISDIR(path_stat.st_mode));
 }

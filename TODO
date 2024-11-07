@@ -8,3 +8,9 @@ SEDA:
 6. exit_code can be negative ??
 7. exit y forki pahov idddkkk ???
 8. FT_TOLOWER
+
+30. echo $
+31. echo "$"
+71. echo $USER=4
+73. echo $USER213
+74. echo "$USER=12$USER" 

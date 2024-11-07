@@ -65,7 +65,6 @@ char	*ft_substr(char *s, int start, int end)
 	j = 0;
 	if (!s)
 		return (NULL);
-	
 	if (start >= ft_strlen(s))  // If start is beyond the length of the string
 		i = 1;
 	else if (ft_strlen(s) < end)  // If end exceeds the string length
@@ -76,7 +75,6 @@ char	*ft_substr(char *s, int start, int end)
 	arr = (char *)malloc(sizeof(char) * i);
 	if (!arr)
 		return (NULL);
-
 	while (i - 1)
 	{
 		arr[j] = s[j + start];

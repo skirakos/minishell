@@ -6,7 +6,8 @@ char	*get_from_env(t_env *env, char *key)
 
 	while (env)
 	{
-		if (!ft_strncmp(env->var, key, ft_strlen(env->var)))
+		// if (!ft_strncmp(env->var, key, ft_strlen(env->var)))
+		if (!ft_strcmp(env->var, key))
 		{
 			res = (char *)malloc(sizeof(char *) * (ft_strlen(env->value) + 1));
 			if (!res)
@@ -18,7 +19,7 @@ char	*get_from_env(t_env *env, char *key)
 				j++;
 			}
 			res[j] = '\0';
-			//printf("res: %s\n", res);
+			// printf("res: %s\n", res);
 			return (res);
 		}
 		env = env->next;
@@ -63,6 +64,7 @@ void quote_remover(t_split *item) {
         item = item->next;
     }
 }
+
 char	*merge(char *before_key, char *dollar_value, char *after_key)
 {
 	char	*tmp;
@@ -89,16 +91,19 @@ char	*sedastan(char *str, int i, t_env *env, int end)
 	start = ++(i);
 	if (str[i] && str[i] == '?')
 		return (merge(before_key, ft_itoa(g_exit_status), ft_substr(str, i + 1, ft_strlen(str))));
-	while (str[i] && (str[i] != ' ' && str[i] != '/' && str[i] != '$' && str[i] != '"' && str[i] != 39 && str[i] != '>' && str[i] != '<' && str[i] != '>' && str[i] != '\0'))
+	//printf("hres->%s\n", str);
+	while (str[i] && (str[i] != ' ' && str[i] != '=' && str[i] != '/' && str[i] != '$' && str[i] != '"' && str[i] != 39 && str[i] != '>' && str[i] != '<' && str[i] != '>' && str[i] != '\0'))
 		(i)++;
 	end = (i) - 1;
 	//printf("enddddd: %d\n", end);
 	key = ft_substr(str, start, end + 1);
-	//printf("i: %d\n", *i);
+	//printf("i: %s\n", key);
 	after_key = ft_substr(str, end + 1, ft_strlen(str));
 	dollar_value = get_from_env(env, key);
+	//printf("vata->%s\n", dollar_value);
 	return (merge(before_key, dollar_value, after_key));
 }
+
 void	dollar_sign(t_split *item, t_env *env)
 {
 	char	*str;
@@ -125,8 +130,15 @@ void	dollar_sign(t_split *item, t_env *env)
 				is_squote = !is_squote;
 			if (is_squote == 0 && str[i] == '$')
 			{
-				if (!prev || (prev && prev->type != HERE_DOC))
+				if (str[i + 1] == '\0' || (is_dquote && str[i + 1] == '"'))
 				{
+					printf("hsbahj\n");
+					str = ft_strdup("$");
+					break;
+				}
+				else if (!prev || (prev && prev->type != HERE_DOC))
+				{
+					printf("hyy? --- %c\n", str[i+1]);
 					str = sedastan(str, i, env, 0);
 					continue ;
 				}
@@ -439,42 +451,6 @@ void	tokenization(char *input, t_minishell *minishell)
 		// 	printf("%s$\n", tmp->value);
 		// 	tmp = tmp->next;
 		// }
-	}
-}
-
-void	dollar(t_split	*item, t_env *env)
-{
-	int		i;
-	char	*key;
-
-	while (item)
-	{
-		int	start;
-		i = 0;
-		while (item->value[i])
-		{
-			if (item->value[i] == '$')
-			{
-				i++;
-				start = i;
-				while (item->value[i] && ((item->value[i] >= 'a' && item->value[i] <= 'z') || (item->value[i] >= 'A' && item->value[i] <= 'Z') || (item->value[i] >= '0' && item->value[i] <= '9') || (item->value[i] == '_')))
-					i++;
-				key = ft_substr(item->value, start, i - 1);
-				if (check_key_in_env(env, key, item) == 1)
-				{
-					
-				}
-				else
-				{
-					free(item->value);
-					item->value = NULL;
-					break;
-				}
-			}
-			else
-				i++;
-		}
-		item = item->next;
 	}
 }
 

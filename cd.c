@@ -39,7 +39,7 @@ char	*tilda(t_minishell *minishell)
 	home_path = ft_strdup(getenv("HOME"));
 	path = ft_strjoin(home_path, path);
 	free(home_path);
-	//printf("path: %s\n", path);
+	printf("path: %s\n", path);
 	return (path);
 }
 
@@ -52,9 +52,7 @@ void	cd(t_minishell *minishell)
 	if (getcwd(old_pwd, PATH_MAX) != NULL)
 		update_env(minishell->env, old_pwd, 0);
 	if (!minishell->cmd[1] || ft_strcmp(minishell->cmd[1], "~") == 0 || ft_strcmp(minishell->cmd[1], "~/") == 0)
-	{	path = getenv("HOME");
-		perror_exit(g_exit_status, "cd: ");
-	}
+		path = getenv("HOME");
 	else if (minishell->cmd[1][0] == '~')
 		path = tilda(minishell);
 	else

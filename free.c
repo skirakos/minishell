@@ -39,9 +39,7 @@ int		matrix_len(char **matrix)
 
 	i = 0;
 	while (matrix[i])
-	{
 		i++;
-	}
 	return (i);
 }
 

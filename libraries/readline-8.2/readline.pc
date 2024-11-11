@@ -1,4 +1,4 @@
-prefix=/Users/skirakos/desktop/minihell/libraries/readline
+prefix=/Users/skirakos/Desktop/minihell/libraries/readline
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include

@@ -114,7 +114,8 @@ int		syntax_check(t_split *tokens);
 void	print_err(int exit_status, char *msg1, char *msg2, char *msg3);
 void	perror_exit(int err_code, char *msg);
 char	*ft_itoa(int n);
-int	access_directory(const char	*path);
+int		access_directory(const char	*path);
 bool	is_directory(const char	*path);
+int		is_valid_var(char *var);
 
 #endif

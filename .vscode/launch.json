@@ -6,8 +6,8 @@
       "type": "lldb",
       "request": "launch",
       "args": [],
-      "cwd": "/Users/skirakos/Desktop/minihell",
-      "program": "/Users/skirakos/Desktop/minihell/build/Debug/outDebug"
+      "cwd": "/Users/skirakos/Desktop/minishell",
+      "program": "/Users/skirakos/Desktop/minishell/build/Debug/outDebug"
     }
   ]
 }

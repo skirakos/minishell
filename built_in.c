@@ -11,7 +11,7 @@ t_split *pre_execve(t_minishell *minishell)
 	len = 0;
 	while (minishell->tokens && minishell->tokens->value && (minishell->tokens->type == WORD || minishell->tokens->type != S_PIPE))
 	{
-		if (check_redir(minishell->tokens->value))
+		if (minishell->tokens->type != WORD && check_redir(minishell->tokens->value))
 			len -= 2;
 		len++;
 		minishell->tokens = minishell->tokens->next;
@@ -23,7 +23,7 @@ t_split *pre_execve(t_minishell *minishell)
 	i = 0;
 	while (tmp && tmp->value && tmp->type != S_PIPE)
 	{
-		if (!check_redir(tmp->value))
+		if (tmp->type == WORD || !check_redir(tmp->value))
 		{
 			matrix[i] = ft_strdup(tmp->value);
 			i++;

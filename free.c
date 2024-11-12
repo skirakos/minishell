@@ -5,7 +5,7 @@ void	free_t_split(t_split *tokens)
 	t_split	*tmp;
 
 	tmp = NULL;
-	printf("%p\n",tokens);
+	//printf("%p\n",tokens);
 	while (tokens)
 	{
 		tmp = tokens;
@@ -16,7 +16,7 @@ void	free_t_split(t_split *tokens)
 		free(tmp);
 		tmp = NULL;
 	}
-	// free(tokens);
+	free(tokens);
 }
 
 void	free_t_env(t_env *env)
@@ -26,6 +26,7 @@ void	free_t_env(t_env *env)
 	while (env)
 	{
 		tmp = env;
+		free(env->var);
 		free(env->value);
 		env = env->next;
 		free(tmp);
@@ -59,11 +60,32 @@ void	*free_matrix(char** matrix, int rows) {
 void	free_before_exit(t_minishell *minishell)
 {
 	if (minishell->tokens)
+	{
 		free_t_split(minishell->tokens);
+		minishell->tokens = NULL;
+	}	
 	if (minishell->env)
+	{
 		free_t_env(minishell->env);
+		minishell->env = NULL;
+	}	
+	if (minishell->pid)
+	{
+		free(minishell->pid);
+		minishell->pid = NULL;
+	}	
 	if (minishell->cmd)
-		free_matrix(minishell->cmd, matrix_len(minishell->cmd));
+	{
+		minishell->cmd = free_matrix(minishell->cmd, matrix_len(minishell->cmd));
+	}
+	if (minishell->fd)
+	{
+		free(minishell->fd);
+		minishell->fd = NULL;
+	}
 	if (minishell)
+	{
 		free(minishell);
+		minishell = NULL;
+	}	
 }

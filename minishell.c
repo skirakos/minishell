@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minishell.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: artyavet <artyavet@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/12 18:37:38 by artyavet          #+#    #+#             */
+/*   Updated: 2024/11/12 19:24:11 by artyavet         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 int	g_exit_status = 0;
@@ -21,6 +33,7 @@ void	get_value(t_env **copy, char **env, int i, int *j)
 		(*copy)->value[k] = '\0';
 	}
 }
+
 t_env	*ft_lstnew_env(char *content, char *type)
 {
 	t_env	*n;
@@ -78,18 +91,26 @@ t_env	*env_copy(char **env)
 	return (copy);
 }
 
+void	foo()
+{
+	system("leaks minishell");
+}
+
 int main(int argc, char **argv, char **env)
 {
 	char		*input;
 	t_minishell	*minishell;
 	
 	(void)argv;
-	input = ft_strdup("");
+	input = "";
 	if (argc == 1)
 	{
 		minishell = malloc(sizeof(t_minishell));
 		if (!minishell)
 			return (1);
+		minishell->tokens = NULL;
+		minishell->cmd = NULL;
+		minishell->pid = NULL;
 		minishell->env = env_copy(env);
 		minishell->fd_in = 0;
 		minishell->fd_out = 1;
@@ -99,14 +120,15 @@ int main(int argc, char **argv, char **env)
 			//int g_exit_status = 0;
 			signals();
 			input = readline("\033[1;90m⚙️  MINISHELL GJUK\033[0m: ");
-			if(input)
+			if(input && *input)
 			{
-				//printf("input: %s$\n", input);
 				add_history(input);
 				tokenization(input, minishell);
 			}
 			free(input);
+			foo();
 		}
+		free_before_exit(minishell);
 	}
 	return (0);
 }

@@ -1,25 +1,28 @@
 #include "minishell.h"
 
+void	fo()
+{
+	system("leaks minishell");
+}
+
 char	*get_from_env(t_env *env, char *key)
 {
 	char	*res;
 
 	while (env)
 	{
-		// if (!ft_strncmp(env->var, key, ft_strlen(env->var)))
 		if (!ft_strcmp(env->var, key))
 		{
 			res = (char *)malloc(sizeof(char *) * (ft_strlen(env->value) + 1));
 			if (!res)
 				return (NULL);
 			int j = 0;
-			while (res[j] && env->value[j])
+			while (env->value[j])
 			{
 				res[j] = env->value[j];
 				j++;
 			}
 			res[j] = '\0';
-			// printf("res: %s\n", res);
 			return (res);
 		}
 		env = env->next;
@@ -91,16 +94,13 @@ char	*sedastan(char *str, int i, t_env *env, int end)
 	start = ++(i);
 	if (str[i] && str[i] == '?')
 		return (merge(before_key, ft_itoa(g_exit_status), ft_substr(str, i + 1, ft_strlen(str))));
-	//printf("hres->%s\n", str);
 	while (str[i] && (str[i] != ' ' && str[i] != '=' && str[i] != '/' && str[i] != '$' && str[i] != '"' && str[i] != 39 && str[i] != '>' && str[i] != '<' && str[i] != '>' && str[i] != '\0'))
 		(i)++;
 	end = (i) - 1;
-	//printf("enddddd: %d\n", end);
 	key = ft_substr(str, start, end + 1);
-	//printf("i: %s\n", key);
 	after_key = ft_substr(str, end + 1, ft_strlen(str));
 	dollar_value = get_from_env(env, key);
-	//printf("vata->%s\n", dollar_value);
+	free(str);
 	return (merge(before_key, dollar_value, after_key));
 }
 
@@ -132,20 +132,17 @@ void	dollar_sign(t_split *item, t_env *env)
 			{
 				if (str[i + 1] == '\0' || (is_dquote && str[i + 1] == '"'))
 				{
-					printf("hsbahj\n");
 					str = ft_strdup("$");
 					break;
 				}
 				else if (!prev || (prev && prev->type != HERE_DOC))
 				{
-					printf("hyy? --- %c\n", str[i+1]);
 					str = sedastan(str, i, env, 0);
 					continue ;
 				}
 			}
 			i++;
 		}
-		//int j = 0;
 		item->value = str;
 		prev = item;
 		item = item->next;
@@ -372,7 +369,7 @@ void	tokenization(char *input, t_minishell *minishell)
 			if (input[i] != current_quote)
 			{
 				//free(input);
-				perror_exit(QUOTE_ERR, NULL);
+				perror_exit(minishell, QUOTE_ERR, NULL, 0);
 				return ;
 			}
 			//quote_count++;
@@ -428,30 +425,21 @@ void	tokenization(char *input, t_minishell *minishell)
 	}
 	item = tmp->next;
 	free(tmp);
+	// fo();
 	if (item)
 	{
 		dollar_sign(item, minishell->env);
 		check_operation(&item);
 		tmp = item;
-		//printf("before syntax_check\n");
-		if (syntax_check(item) == 1)
+		if (syntax_check(minishell, item) == 1)
 			return ;
-		//printf("after syntax_check\n");
 		item = tmp;
-		// free(tmp);
-		//tmp = item;
 		minishell->tokens = item;
 		if (minishell->tokens && minishell->tokens->value){
-			//printf("here>>\n");
 			built_in(minishell);
 		}
-		// i = 0;
-		// while (tmp)
-		// {
-		// 	printf("%s$\n", tmp->value);
-		// 	tmp = tmp->next;
-		// }
 	}
+	// fo();
 }
 
 int	check_key_in_env(t_env *env, char *key, t_split *item)

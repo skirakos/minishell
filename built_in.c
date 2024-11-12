@@ -3,10 +3,12 @@
 t_split *pre_execve(t_minishell *minishell)
 {
 	t_split *tmp;
+	t_split *ptr;
 	int i;
 	int len;
 	char **matrix;
 
+	ptr = minishell->tokens;
 	tmp = minishell->tokens;
 	len = 0;
 	while (minishell->tokens && minishell->tokens->value && (minishell->tokens->type == WORD || minishell->tokens->type != S_PIPE))
@@ -36,6 +38,7 @@ t_split *pre_execve(t_minishell *minishell)
 		tmp = tmp->next;
 	}
 	matrix[len] = NULL;
+	
 	// i = 0;
 	// while (matrix[i] != NULL)
 	// {
@@ -45,6 +48,14 @@ t_split *pre_execve(t_minishell *minishell)
 	minishell->cmd = matrix;
 	if (tmp && tmp->type == S_PIPE)
 		minishell->tokens = minishell->tokens->next;
+	// while(ptr != minishell->tokens)
+	// {
+	// 	tmp = ptr;
+	// 	free(ptr->value);
+	// 	ptr = ptr->next;
+	// 	free(tmp);
+	// }
+	
 	return (minishell->tokens);
 }
 
@@ -87,7 +98,6 @@ char **env_to_matrix(t_minishell *minishell)
 		zibil = join_tmp;
 		join_tmp = ft_strjoin(join_tmp, minishell->env->value);
 		free(zibil);
-		envp[i] = malloc(ft_strlen(join_tmp) + 1);
 		envp[i] = ft_strdup(join_tmp);
 		free(join_tmp);
 		join_tmp = NULL;
@@ -97,6 +107,11 @@ char **env_to_matrix(t_minishell *minishell)
 	envp[i] = NULL;
 	minishell->env = env;
 	return (envp);
+}
+
+void	fooo()
+{
+	// system("leaks minishell");
 }
 
 int is_builtin(char *cmd)
@@ -160,7 +175,6 @@ void check_cmd(t_minishell *minishell)
 		i++;
 	}
 	minishell->env = tmp;
-	// printf("hres\n");
 	if (path)
 		free_matrix(path, matrix_len(path));
 }
@@ -258,12 +272,12 @@ void built_in(t_minishell *minishell)
 	pipes = pipe_count(minishell);
 	minishell->pid = malloc(sizeof(pid_t) * (pipes + 1));
 	init_pipe_fd(minishell, pipes);
-	//printf("builtin\n");
 	while (minishell->tokens && minishell->tokens->value)
 	{
 		minishell->tokens = pre_execve(minishell);
 		check_cmd(minishell);
 		envp = env_to_matrix(minishell);
+		fooo();
 		if (curr < pipes + 1)
 		{
 			if (pipes == 0 && isbuiltin(minishell->cmd[0]) == 1)
@@ -295,15 +309,18 @@ void built_in(t_minishell *minishell)
 			else
 			{
 				pid = fork();
-				if (pid == -1)
-					perror_exit(FORK_ERR, "Resource temporarily unavailable");
+				if (pid == -1 && g_exit_status != 1)
+				{
+					g_exit_status = 1;
+					perror_exit(minishell, FORK_ERR, "Resource temporarily unavailable", 0);
+				}
 				else if (pid == 0)
 				{
 					ft_dups(minishell, pipes, curr);
 					redirs(minishell);
 					if (access(minishell->cmd[0], X_OK) != 0 && !is_builtin(minishell->cmd[0]))
 					{
-						perror_exit(CMD_NOT_FOUND,minishell->cmd[0]);
+						perror_exit(minishell, CMD_NOT_FOUND,minishell->cmd[0], 1);
 						exit (127);
 					}
 					else if (ft_strcmp(minishell->cmd[0], "cd") == 0)
@@ -347,7 +364,7 @@ void built_in(t_minishell *minishell)
 					}
 					else if (execve(minishell->cmd[0], minishell->cmd, envp) == -1)
 					{
-						perror_exit(EXECVE_ERR, minishell->cmd[0]);
+						perror_exit(minishell, EXECVE_ERR, minishell->cmd[0], 1);
 						exit(1); // error and exit maybe
 					} // because execve exits after running the command and we don't need to quit from the main proccess (program) that's why it is put in fork
 				}
@@ -356,9 +373,12 @@ void built_in(t_minishell *minishell)
 			}
 			curr++;
 		}
+		wait_processes(minishell, pipes);
+		minishell->cmd = free_matrix(minishell->cmd, matrix_len(minishell->cmd));
+		envp = free_matrix(envp, matrix_len(envp));
+		// fooo();
 	}
 	close_fd(minishell,pipes);
-	wait_processes(minishell, pipes);
 	if (minishell->fd_in != 0)
 	{
 		close(minishell->fd_in);
@@ -370,5 +390,16 @@ void built_in(t_minishell *minishell)
 		minishell->fd_out = 1;
 	}
 	minishell->tokens = tmp;
+	while (minishell->tokens)
+	{
+		tmp = minishell->tokens;
+		free (minishell->tokens->value);
+		minishell->tokens = minishell->tokens->next;
+		free(tmp);
+	}
+	free(minishell->pid);
+	minishell->pid = NULL;
+	free(minishell->fd);
+	minishell->fd = NULL;
 }
 

@@ -215,7 +215,7 @@ void handle_redirection(t_minishell *minishell, int type, char *file_name)
 {
 	if (type == IN_REDIR)
 		minishell->fd_in = open(file_name, O_RDONLY);
-	else if (type == APPEND_FILEOUT)
+	else if (type == APPEND_REDIR)
 		minishell->fd_out = open(file_name, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	else if (type == OUT_REDIR)
 		minishell->fd_out = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
@@ -359,8 +359,16 @@ void built_in(t_minishell *minishell)
 	}
 	close_fd(minishell,pipes);
 	wait_processes(minishell, pipes);
-	minishell->fd_in = 0;
-	minishell->fd_out = 1;
+	if (minishell->fd_in != 0)
+	{
+		close(minishell->fd_in);
+		minishell->fd_in = 0;
+	}
+	if (minishell->fd_out != 1)
+	{
+		close(minishell->fd_out);
+		minishell->fd_out = 1;
+	}
 	minishell->tokens = tmp;
 }
 

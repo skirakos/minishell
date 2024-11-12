@@ -1,12 +1,12 @@
 # Name of the executable
-TARGET = minishell
+NAME = minishell
 
 READLINE = readline
 # Compiler
 CC = cc
 
 # Compiler flags
-CFLAGS = -Wall -Wextra -Werror -I. -g3 -I./$(LIBS_DIR)/$(READLINE)/include  -fsanitize=address
+CFLAGS = -Wall -Wextra -Werror -I. -I./$(LIBS_DIR)/$(READLINE)/include  #-fsanitize=address -g3
 
 # Libraries to link with
 LIBS_DIR = libraries
@@ -38,11 +38,11 @@ SRCS = minishell.c \
 OBJS = $(SRCS:.c=.o)
 
 # Default rule to build the target
-all: $(READLINE_LIB_PATH) $(TARGET)
+all: $(READLINE_LIB_PATH) $(NAME)
 
 # Rule to link the executable
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LIBS) -l$(READLINE) -L$(READLINE_LIB_PATH)
+$(NAME): $(OBJS)
+	$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(LIBS) -l$(READLINE) -L$(READLINE_LIB_PATH)
 
 # Rule to compile source files into object files
 %.o: %.c Makefile minishell.h
@@ -52,15 +52,16 @@ $(TARGET): $(OBJS)
 $(READLINE_LIB_PATH):
 	./$(LIBS_DIR)/config_readline readline
 
+clean:
+	rm -f $(NAME) $(OBJS)
+
 # Clean up generated files
-fclean:
-	rm -f $(TARGET) $(OBJS)
+fclean: clean
 	rm -rf $(LIBS_DIR)/$(READLINE)
-	rm -rf $(OBJS_DIR)
 	make clean -C $(LIBS_DIR)/readline-8.2
 
 # Full clean and rebuild
 re: fclean all
 
 # Phony targets
-.PHONY: all fclean re
+.PHONY: all fclean clean re

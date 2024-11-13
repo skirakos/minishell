@@ -6,7 +6,7 @@
 /*   By: artyavet <artyavet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:37:38 by artyavet          #+#    #+#             */
-/*   Updated: 2024/11/12 19:24:11 by artyavet         ###   ########.fr       */
+/*   Updated: 2024/11/12 20:44:48 by artyavet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,10 +91,10 @@ t_env	*env_copy(char **env)
 	return (copy);
 }
 
-void	foo()
-{
-	system("leaks minishell");
-}
+// void	foo()
+// {
+// 	system("leaks minishell");
+// }
 
 int main(int argc, char **argv, char **env)
 {
@@ -126,7 +126,7 @@ int main(int argc, char **argv, char **env)
 				tokenization(input, minishell);
 			}
 			free(input);
-			foo();
+			// foo();
 		}
 		free_before_exit(minishell);
 	}

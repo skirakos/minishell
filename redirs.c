@@ -16,10 +16,12 @@ void	in_redir(t_minishell *minishell)
 
 void	out_redir(t_minishell *minishell)
 {
+	printf("tpem->%d\n",minishell->fd_out);
 	if (minishell->fd_out > 1)
 	{
 		if (dup2(minishell->fd_out, 1) == -1)
 		{
+			
 			close(minishell->fd_out);
 			//err_message("minishell: ", "dup2 error\n", "");
 			//g_exit_status = 2;

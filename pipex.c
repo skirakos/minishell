@@ -50,6 +50,7 @@ void    ft_dups(t_minishell *minishell, int pipes, int curr)
 		//perror_exit(g_exit_status, "minishell: ");
 		//exit(1);
 	}
+	printf("n->%d\n", curr);
 	if (curr < pipes
 		&& dup2(minishell->fd[curr][1], 1) == -1)
 	{

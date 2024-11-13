@@ -227,6 +227,8 @@ char **clean_cmd(char **cmd)
 
 void handle_redirection(t_minishell *minishell, int type, char *file_name)
 {
+	// minishell->fd_out = 1;
+	// minishell->fd_in = 0;
 	if (type == IN_REDIR)
 		minishell->fd_in = open(file_name, O_RDONLY);
 	else if (type == APPEND_REDIR)

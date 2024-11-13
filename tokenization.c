@@ -2,7 +2,7 @@
 
 void	fo()
 {
-	system("leaks minishell");
+	// system("leaks minishell");
 }
 
 char	*get_from_env(t_env *env, char *key)
@@ -101,6 +101,7 @@ char	*sedastan(char *str, int i, t_env *env, int end)
 	after_key = ft_substr(str, end + 1, ft_strlen(str));
 	dollar_value = get_from_env(env, key);
 	free(str);
+	free(key);
 	return (merge(before_key, dollar_value, after_key));
 }
 
@@ -130,6 +131,7 @@ void	dollar_sign(t_split *item, t_env *env)
 				is_squote = !is_squote;
 			if (is_squote == 0 && str[i] == '$')
 			{
+				(void)env;
 				if (str[i + 1] == '\0' || (is_dquote && str[i + 1] == '"'))
 				{
 					str = ft_strdup("$");
@@ -143,6 +145,9 @@ void	dollar_sign(t_split *item, t_env *env)
 			}
 			i++;
 		}
+		//ptr = item->value;
+		//free(ptr);
+		// free(item->value);
 		item->value = str;
 		prev = item;
 		item = item->next;
@@ -154,7 +159,7 @@ void	dollar_sign(t_split *item, t_env *env)
 	// 	free(prev);
 	// }
 	quote_remover(item);
-	item = tmp;
+	// item = tmp;
 }
 
 void type_operator(t_split **item, char *input, int *i)
@@ -226,6 +231,7 @@ void	ft_strcut(t_split *item, char *input, int start, int end)
 	item->value[i] = '\0';
 	item->type = WORD;
 }
+
 // t_split	*remove_empty_nodes(t_split *item)
 // {
 // 	t_split	*tmp;
@@ -335,7 +341,6 @@ int check_operation(t_split **item)
     }
     return (0); // No errors
 }
-
 
 void	tokenization(char *input, t_minishell *minishell)
 {

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_split.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: skirakos <skirakos@student.42.fr>          +#+  +:+       +#+        */
+/*   By: artyavet <artyavet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/07 15:56:04 by skirakos          #+#    #+#             */
-/*   Updated: 2024/09/22 19:41:09 by skirakos         ###   ########.fr       */
+/*   Updated: 2024/11/13 16:28:08 by artyavet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,7 @@ char	**ft_split(char *str, char c)
 	}
 	return (start_malloc(str, out, wc, j, c));
 }
+
 // int main()
 // {
 //     char str[] = "";

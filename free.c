@@ -44,7 +44,8 @@ int		matrix_len(char **matrix)
 	return (i);
 }
 
-void	*free_matrix(char** matrix, int rows) {
+void	*free_matrix(char** matrix, int rows)
+{
     int 	i;
 
 	i = 0;
@@ -87,5 +88,5 @@ void	free_before_exit(t_minishell *minishell)
 	{
 		free(minishell);
 		minishell = NULL;
-	}	
+	}
 }

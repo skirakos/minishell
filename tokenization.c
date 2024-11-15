@@ -30,7 +30,8 @@ char	*get_from_env(t_env *env, char *key)
 	return (NULL);
 }
 
-void quote_remover(t_split *item) {
+void quote_remover(t_split *item)
+{
 	int		len;
 	int		i;
 	int		j;
@@ -90,6 +91,8 @@ char	*sedastan(char *str, int i, t_env *env, int end)
 	char	*dollar_value;
 	int		start;
 
+	if (str[i + 1] == '\0' || str [i + 1] == ' ')
+		return (str);
 	before_key = ft_substr(str, 0, i);
 	start = ++(i);
 	if (str[i] && str[i] == '?')
@@ -140,6 +143,8 @@ void	dollar_sign(t_split *item, t_env *env)
 				else if (!prev || (prev && prev->type != HERE_DOC))
 				{
 					str = sedastan(str, i, env, 0);
+					if (str[i] == '$' && (str[i + 1] == '\0' || str[i + 1] == ' '))
+						i++;
 					continue ;
 				}
 			}
@@ -212,7 +217,6 @@ void type_operator(t_split **item, char *input, int *i)
 	}
 
 }
-
 
 void	ft_strcut(t_split *item, char *input, int start, int end)
 {

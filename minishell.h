@@ -19,7 +19,7 @@
 # define QUOTE_ERR 4
 # define MALLOC_ERR 5
 # define PIPE_ERR 6
-# define FORK_ERR 1
+# define FORK_ERR 7
 # define DUP_ERR 8
 # define CMD_NOT_FOUND 9
 # define EXECVE_ERR 10
@@ -71,6 +71,8 @@ typedef	struct s_minishell {
     int     fd_out;
     int     fd_heredoc;
     pid_t   *pid;
+	int		is_builtin;
+	int		file_err;
 } t_minishell;
 
 void	tokenization(char *input, t_minishell *minishell);
@@ -109,6 +111,8 @@ int     init_pipe_fd(t_minishell *minishell, int pipe_count);
 void    ft_dups(t_minishell *minishell, int pipes, int curr);
 void	redirs(t_minishell *minishell);
 void	close_fd(t_minishell *minishell, int pipe_count);
+void	set_sig_after_rl(void);
+void	set_sig_before_rl(void); //erevi kpoxvi
 void    signals();
 void	print_err(int exit_status, char *msg1, char *msg2, char *msg3);
 void	perror_exit(t_minishell *minishell, int err_code, char *msg, int fork);

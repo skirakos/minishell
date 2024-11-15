@@ -45,6 +45,7 @@ int	is_permited(t_split *token)
 		return (1);
 	return (0);
 }
+
 void	print_err(int exit_status, char *msg1, char *msg2, char *msg3)
 {
 	g_exit_status = exit_status;
@@ -55,12 +56,13 @@ void	print_err(int exit_status, char *msg1, char *msg2, char *msg3)
 	if (msg3 != NULL)
 		ft_putstr_fd(msg3, 2);
 }
+
 void	perror_exit(t_minishell *minishell, int err_code, char *msg, int fork)
 {
 	if (err_code == SYNTAX_ERR)
 		print_err(2, "minishell: syntax error near unexpected token `", msg, "'\n");
 	else if (err_code == FORK_ERR)
-		print_err(2, "minishell: ", msg, "\n");
+		print_err(1, "minishell: ", msg, "\n");
 	else if (err_code == PIPE_ERR)
  		print_err(2, "minishell: pipe error\n", msg, "\n");
 	else if (err_code == QUOTE_ERR)

@@ -22,12 +22,6 @@ void	update_env(t_env *env, char *pwd_to_set, int flag)
 		env = env->next;
 	}
 	env = tmp;
-	// while (env)
-	// {
-	// 	printf("%s=%s\n", env->var, env->value);
-	// 	env = env->next;
-	// }
-	// env = tmp;
 }
 
 char	*tilda(t_minishell *minishell)
@@ -39,7 +33,7 @@ char	*tilda(t_minishell *minishell)
 	home_path = ft_strdup(getenv("HOME"));
 	path = ft_strjoin(home_path, path);
 	free(home_path);
-	printf("path: %s\n", path);
+	//printf("path: %s\n", path);
 	return (path);
 }
 
@@ -58,16 +52,17 @@ void	cd(t_minishell *minishell)
 	else
 		path = minishell->cmd[1];
 	if (access(path, F_OK) == -1)
-		print_err(2, "minishell: cd: ", path, ": No such file or directory\n");
+		print_err(1, "minishell: cd: ", path, ": No such file or directory\n");
 	else if (!is_directory(path))
-		print_err(2, "minishell: cd: ", path, ": Not a directory\n");
+		print_err(1, "minishell: cd: ", path, ": Not a directory\n");
 	else if (access_directory(path) == 0)
-		print_err(2, "minishell: cd: ", path, ": Permission denied\n");
-	if (access(path, F_OK) == 0)
+		print_err(1, "minishell: cd: ", path, ": Permission denied\n");
+	else if (access(path, F_OK) == 0)
 	{
 		chdir(path);
 		if (getcwd(new_pwd, PATH_MAX) != NULL)
 			update_env(minishell->env, new_pwd, 1);
+		g_exit_status = 0;
 	}
 }
 

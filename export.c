@@ -14,6 +14,7 @@ int	check_in_env(t_env *env, char *str)
 	env = tmp;
 	return (1);
 }
+
 int	is_digit(char c)
 {
 	if (c >= '0' && c <= '9')
@@ -99,6 +100,7 @@ char **str_divide_by_equal_sign(char *str)
 	res[2] = NULL;
 	return (res);
 }
+
 void	exec_export(t_minishell *minishell)
 {
 	t_env	*tmp;
@@ -203,6 +205,7 @@ void	exec_export(t_minishell *minishell)
 		free_matrix(split, matrix_len(split));
 	}
 }
+
 void	print_env(char **envp)
 {
 	int	i;

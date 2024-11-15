@@ -1,12 +1,12 @@
 #include "minishell.h"
 
-t_split *pre_execve(t_minishell *minishell)
+t_split	*pre_execve(t_minishell *minishell)
 {
-	t_split *tmp;
-	t_split *ptr;
-	int i;
-	int len;
-	char **matrix;
+	t_split	*tmp;
+	t_split	*ptr;
+	int		i;
+	int		len;
+	char	**matrix;
 
 	ptr = minishell->tokens;
 	tmp = minishell->tokens;
@@ -39,10 +39,10 @@ t_split *pre_execve(t_minishell *minishell)
 	}
 	matrix[len] = NULL;
 	
-	// i = 0;
-	// while (matrix[i] != NULL)
+	i = 0;
+	// while (matrix[i])
 	// {
-	// 	printf("matrix[%d] %s\n", i, matrix[i]);
+	// 	printf("matrix[%d]-->%s\n",i, matrix[i]);
 	// 	i++;
 	// }
 	minishell->cmd = matrix;
@@ -178,10 +178,12 @@ void check_cmd(t_minishell *minishell)
 	if (path)
 		free_matrix(path, matrix_len(path));
 }
-int pipe_count(t_minishell *minishell)
+
+int	pipe_count(t_minishell *minishell)
 {
 	int pipe_count;
 	t_split *tmp;
+	
 	tmp = minishell->tokens;
 	pipe_count = 0;
 	if (!minishell->tokens || !minishell->tokens->value)
@@ -199,14 +201,14 @@ int pipe_count(t_minishell *minishell)
 	return (pipe_count);
 }
 
-int check_redir(char *str)
+int	check_redir(char *str)
 {
 	if (ft_strcmp(str, "<") == 0 || ft_strcmp(str, ">") == 0 || ft_strcmp(str, "<<") == 0 || ft_strcmp(str, ">>") == 0)
 		return (1);
 	return (0);
 }
 
-char **clean_cmd(char **cmd)
+char	**clean_cmd(char **cmd)
 {
 	int i;
 
@@ -225,16 +227,46 @@ char **clean_cmd(char **cmd)
 	return (cmd);
 }
 
-void handle_redirection(t_minishell *minishell, int type, char *file_name)
+int	open_file(char *fn, int type, t_minishell *minishell)
 {
-	// minishell->fd_out = 1;
-	// minishell->fd_in = 0;
+	int	fd;
+
+	fd = -1;
 	if (type == IN_REDIR)
-		minishell->fd_in = open(file_name, O_RDONLY);
-	else if (type == APPEND_REDIR)
-		minishell->fd_out = open(file_name, O_WRONLY | O_CREAT | O_APPEND, 0644);
+	{
+		fd = open(fn, O_RDONLY);
+		if (fd < 0)
+			fd = -2;
+	}
 	else if (type == OUT_REDIR)
-		minishell->fd_out = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		fd = open(fn, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	else if (type == APPEND_REDIR)
+		fd = open(fn, O_CREAT | O_WRONLY | O_APPEND, 0644);
+	if (fd > 2)
+		return (fd);
+	if (fd < 0)
+	{
+		if (fd == -1)
+			print_err(1, "minihell: ", fn, ": Permission denied\n");
+		if (fd == -2 && type == IN_REDIR)
+			print_err(1, "minihell: ", fn, ": No such file or directory\n");
+		minishell->file_err = 1;
+	}
+	if (type == IN_REDIR)
+		return (0);
+	return (1);
+}
+
+void	handle_redirection(t_minishell *minishell, int type, char *file_name)
+{
+	if (minishell->file_err)
+		return ;
+	if (type == IN_REDIR)
+		minishell->fd_in = open_file(file_name, IN_REDIR, minishell);
+	else if (type == APPEND_REDIR)
+		minishell->fd_out = open_file(file_name, APPEND_REDIR, minishell);
+	else if (type == OUT_REDIR)
+		minishell->fd_out = open_file(file_name, OUT_REDIR, minishell);
 	else if (type == HERE_DOC)
 	{
 		minishell->fd_heredoc = here_doc_open(file_name);
@@ -248,7 +280,7 @@ void	wait_processes(t_minishell *minishell, int pipes) // to wait every child pr
 	int		exit_status;
 
 	i = 0;
-	if (pipes == 0 && isbuiltin(minishell->cmd[0]) == 1)
+	if ((pipes == 0 && minishell->is_builtin) || minishell->file_err)
 		return ;
 	while (i < pipes + 1)
 	{
@@ -259,69 +291,100 @@ void	wait_processes(t_minishell *minishell, int pipes) // to wait every child pr
 			g_exit_status = 128 + WTERMSIG(exit_status);
 		i++;
 	}
+	// printf("waiti meja3\n");
 }
 
-void built_in(t_minishell *minishell)
+int	check_folder(char *str)
 {
-	t_split *tmp;
-	int pipes;
-	int curr;
-	int pid;
-	char **envp;
+	struct stat file_stat;
+
+	if (stat(str, &file_stat) == 0 && S_ISDIR(file_stat.st_mode))
+		return (1);
+	return (0);
+}
+
+int	check_accsess(char *str)
+{
+	struct stat file_stat;
+
+	if (stat(str, &file_stat) == 0)
+			return (1);
+	return (0);
+}
+
+void	built_in(t_minishell *minishell)
+{
+	t_split	*tmp;
+	int		pipes;
+	int		curr;
+	int		pid;
+	char	**envp;
 
 	curr = 0;
 	tmp = minishell->tokens;
 	pipes = pipe_count(minishell);
 	minishell->pid = malloc(sizeof(pid_t) * (pipes + 1));
 	init_pipe_fd(minishell, pipes);
+	minishell->is_builtin = 0;
 	while (minishell->tokens && minishell->tokens->value)
 	{
+		minishell->file_err = 0;
+		if (minishell->fd_in > 0)
+		close(minishell->fd_in);
+		minishell->fd_in = 0;
+		if (minishell->fd_out > 1)
+			close(minishell->fd_out);
+		minishell->fd_out = 1;
 		minishell->tokens = pre_execve(minishell);
 		check_cmd(minishell);
 		envp = env_to_matrix(minishell);
-		fooo();
+		if (!minishell->cmd[0])
+			minishell->is_builtin = 1;
 		if (curr < pipes + 1)
 		{
 			if (pipes == 0 && isbuiltin(minishell->cmd[0]) == 1)
 			{
+				minishell->is_builtin = 1;
 				if (ft_strcmp(minishell->cmd[0], "cd") == 0)
-				{
 					cd(minishell);
-				}
 				else if (ft_strcmp(minishell->cmd[0], "env") == 0)
-				{
 					env(minishell);
-				}
 				else if (ft_strcmp(minishell->cmd[0], "unset") == 0)
-				{
-	
 					unset(minishell);
-				}
 				else if (ft_strcmp(minishell->cmd[0], "exit") == 0)
-				{
-
 					exit_shell(minishell);
-				}
 				else if (ft_strcmp(minishell->cmd[0], "export") == 0)
-				{
-		
 					export_bulki(minishell, envp);
-				}
 			}
 			else
 			{
 				pid = fork();
 				if (pid == -1 && g_exit_status != 1)
-				{
-					g_exit_status = 1;
-					perror_exit(minishell, FORK_ERR, "Resource temporarily unavailable", 0);
-				}
+					perror_exit(minishell, FORK_ERR, "Resource temporarily unavailable", 1);
 				else if (pid == 0)
 				{
+					minishell->is_builtin = 0;
 					ft_dups(minishell, pipes, curr);
 					redirs(minishell);
-					if (access(minishell->cmd[0], X_OK) != 0 && !is_builtin(minishell->cmd[0]))
+					if (minishell->file_err || !minishell->cmd[0])
 					{
+						exit (1);
+					}
+					if ((access(minishell->cmd[0], X_OK) != 0 && !is_builtin(minishell->cmd[0])) || check_folder(minishell->cmd[0]))
+					{
+						if (check_accsess(minishell->cmd[0]) && access(minishell->cmd[0], X_OK) != 0
+							&& access(minishell->cmd[0], W_OK) != 0)
+						{
+							print_err(126,"minishell: ", minishell->cmd[0], ": Permission denied\n");
+							exit (126);
+						}
+						if (check_folder(minishell->cmd[0])
+							&& ((minishell->cmd[0][0] == '.' || minishell->cmd[0][0] == '/')
+							|| (minishell->cmd[0][ft_strlen(minishell->cmd[0]) - 1] == '/')))
+						{
+							print_err(126,"minishell: ", minishell->cmd[0], ": is a directory\n");
+							exit (126);
+						}
 						perror_exit(minishell, CMD_NOT_FOUND,minishell->cmd[0], 1);
 						exit (127);
 					}
@@ -375,22 +438,19 @@ void built_in(t_minishell *minishell)
 			}
 			curr++;
 		}
-		wait_processes(minishell, pipes);
 		minishell->cmd = free_matrix(minishell->cmd, matrix_len(minishell->cmd));
 		envp = free_matrix(envp, matrix_len(envp));
-		// fooo();
 	}
 	close_fd(minishell,pipes);
-	if (minishell->fd_in != 0)
-	{
+	wait_processes(minishell, pipes);
+	if (pid == -1)
+		g_exit_status = 1;
+	if (minishell->fd_in > 0)
 		close(minishell->fd_in);
-		minishell->fd_in = 0;
-	}
-	if (minishell->fd_out != 1)
-	{
+	minishell->fd_in = 0;
+	if (minishell->fd_out > 1)
 		close(minishell->fd_out);
-		minishell->fd_out = 1;
-	}
+	minishell->fd_out = 1;
 	minishell->tokens = tmp;
 	while (minishell->tokens)
 	{

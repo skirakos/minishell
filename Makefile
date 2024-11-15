@@ -6,7 +6,7 @@ READLINE = readline
 CC = cc
 
 # Compiler flags
-CFLAGS = -Wall -Wextra -Werror -I. -I./$(LIBS_DIR)/$(READLINE)/include  #-fsanitize=address -g3
+CFLAGS = -Wall -Wextra -Werror -I. -I./$(LIBS_DIR)/$(READLINE)/include #-fsanitize=address -g3
 
 # Libraries to link with
 LIBS_DIR = libraries

@@ -6,7 +6,7 @@
 /*   By: artyavet <artyavet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:37:38 by artyavet          #+#    #+#             */
-/*   Updated: 2024/11/12 20:44:48 by artyavet         ###   ########.fr       */
+/*   Updated: 2024/11/15 16:54:02 by artyavet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,8 +118,9 @@ int main(int argc, char **argv, char **env)
 		while (input)
 		{
 			//int g_exit_status = 0;
-			signals();
+			set_sig_before_rl();
 			input = readline("\033[1;90m⚙️  MINISHELL GJUK\033[0m: ");
+			set_sig_after_rl();
 			if(input && *input)
 			{
 				add_history(input);

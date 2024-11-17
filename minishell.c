@@ -6,7 +6,7 @@
 /*   By: artyavet <artyavet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:37:38 by artyavet          #+#    #+#             */
-/*   Updated: 2024/11/15 16:54:02 by artyavet         ###   ########.fr       */
+/*   Updated: 2024/11/17 17:25:38 by artyavet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,6 +108,7 @@ int main(int argc, char **argv, char **env)
 		minishell = malloc(sizeof(t_minishell));
 		if (!minishell)
 			return (1);
+		minishell->fd = NULL;
 		minishell->tokens = NULL;
 		minishell->cmd = NULL;
 		minishell->pid = NULL;

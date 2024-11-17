@@ -27,7 +27,6 @@ int here_doc_open(char *limiter)
     fd = open(".heredocfile", O_WRONLY | O_CREAT | O_TRUNC, 0644); //hidden file starts with .
     if (fd == -1)
 		return (-1);
-    printf("before heredoc\n");
     here_doc_write(fd, limiter);
     //close(fd);
     fd = open(".heredocfile", O_RDONLY);

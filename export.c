@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   export.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: artyavet <artyavet@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/17 17:38:18 by artyavet          #+#    #+#             */
+/*   Updated: 2024/11/17 17:39:10 by artyavet         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 int	check_in_env(t_env *env, char *str)
@@ -21,6 +33,7 @@ int	is_digit(char c)
 		return (1);
 	return (0);
 }
+
 int	contains_char(char *str, char c)
 {
 	int	i;
@@ -131,10 +144,7 @@ void	exec_export(t_minishell *minishell)
 			if (!check_in_env(minishell->env, split[0]))
 			{
 				while (ft_strcmp(tmp->next->var, split[0]) != 0)
-				{
-					printf("%s\n",tmp->next->var);
 					tmp = tmp->next;
-				}
 				if (!ft_strcmp(tmp->next->value, "\"\"") && split[1])
 				{
 					free(tmp->next->value);
@@ -217,7 +227,7 @@ void	print_env(char **envp)
 	{
 		j = 0;
 		flag = 0;
-		printf("declare -x ");
+		ft_putstr_fd("declare -x ", 1);
 		while (envp[i][j])
 		{
 			if (envp[i][j] == '=')
@@ -226,22 +236,22 @@ void	print_env(char **envp)
 					break;
 				else if (envp[i][j + 1] != '"' && flag == 0)
 				{
-					printf("=\"");
+					ft_putstr_fd("=\"", 1);
 					flag = 1;
 					j++;
 				}
 				else if (envp[i][j + 1] == '"')
 				{
-					printf("=");
+					ft_putstr_fd("=", 1);
 					j++;
 				}
 			}
-			printf("%c", envp[i][j]);
+			ft_putstr_fd(&envp[i][j], 1);
 			j++;
 		}
 		if (flag == 1)
-			printf("\"");
-		printf("\n");
+			ft_putstr_fd("\"", 1);
+		ft_putstr_fd("\n", 1);
 		i++;
 	}
 }
@@ -255,14 +265,8 @@ void	export_bulki(t_minishell *minishell, char **envp)
 		merge_sort(envp, 0, matrix_len(envp) - 1);
 		i = 0;
 		print_env(envp);
-		// while (envp[i])
-		// {
-		// 	printf("declare -x %s\n", envp[i]);
-		// 	i++;
-		// }
 	}
 	else if (matrix_len(minishell->cmd) > 1)
-	{
 		exec_export(minishell);
-	}
 }
+

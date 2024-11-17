@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   built_in.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: artyavet <artyavet@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/17 17:39:40 by artyavet          #+#    #+#             */
+/*   Updated: 2024/11/17 17:40:27 by artyavet         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 t_split	*pre_execve(t_minishell *minishell)
@@ -17,7 +29,6 @@ t_split	*pre_execve(t_minishell *minishell)
 			len -= 2;
 		len++;
 		minishell->tokens = minishell->tokens->next;
-		// printf("tokens->%p\n",minishell->tokens);
 	}
 	matrix = (char **)malloc(sizeof(char *) * (len + 1));
 	if (!matrix)
@@ -40,22 +51,9 @@ t_split	*pre_execve(t_minishell *minishell)
 	matrix[len] = NULL;
 	
 	i = 0;
-	// while (matrix[i])
-	// {
-	// 	printf("matrix[%d]-->%s\n",i, matrix[i]);
-	// 	i++;
-	// }
 	minishell->cmd = matrix;
 	if (tmp && tmp->type == S_PIPE)
 		minishell->tokens = minishell->tokens->next;
-	// while(ptr != minishell->tokens)
-	// {
-	// 	tmp = ptr;
-	// 	free(ptr->value);
-	// 	ptr = ptr->next;
-	// 	free(tmp);
-	// }
-	
 	return (minishell->tokens);
 }
 
@@ -188,7 +186,7 @@ int	pipe_count(t_minishell *minishell)
 	pipe_count = 0;
 	if (!minishell->tokens || !minishell->tokens->value)
 	{
-		printf("return \n");
+		ft_putstr_fd("return \n", 1);
 		return (0);
 	}
 	while (minishell && minishell->tokens)
@@ -291,7 +289,6 @@ void	wait_processes(t_minishell *minishell, int pipes) // to wait every child pr
 			g_exit_status = 128 + WTERMSIG(exit_status);
 		i++;
 	}
-	// printf("waiti meja3\n");
 }
 
 int	check_folder(char *str)

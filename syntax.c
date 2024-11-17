@@ -78,21 +78,21 @@ void	perror_exit(t_minishell *minishell, int err_code, char *msg, int fork)
 int	syntax_check(t_minishell *minishell, t_split *tokens)
 {
 	if (tokens && tokens->type == S_PIPE)
-		return (perror_exit(minishell, SYNTAX_ERR, tokens->value, 0), 1);
+		return (perror_exit(minishell, SYNTAX_ERR, tokens->value, 1), 1);
 	while (tokens != NULL)
 	{
 		if (tokens->type == OUT_REDIR || tokens->type == IN_REDIR \
 			|| tokens->type == APPEND_REDIR || tokens->type == HERE_DOC)
 		{
 			if (tokens->next == NULL)
-				return(perror_exit(minishell, SYNTAX_ERR, "newline", 0), 1);
+				return(perror_exit(minishell, SYNTAX_ERR, "newline", 1), 1);
 			// printf("perror_exit(SYNTAX_ERR, NULL, tokens->value, 2");
 		}
 		//  else if (tokens->type == S_PIPE && !tokens->prev)
 		// 	return(perror_exit((2, NULL, tokens->value, 2), 2));
 		else if ((tokens->type == S_PIPE && !tokens->next) ||
 				(tokens->type == S_PIPE && is_ctrl_op(tokens->next))) // || is_permited(tokens)
-			return(perror_exit(minishell, SYNTAX_ERR, tokens->value, 0), 1);
+			return(perror_exit(minishell, SYNTAX_ERR, tokens->value, 1), 1);
 		tokens = tokens->next;
 	}
 	return (0);

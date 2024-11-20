@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: skirakos <skirakos@student.42.fr>          +#+  +:+       +#+        */
+/*   By: artyavet <artyavet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 20:42:01 by artyavet          #+#    #+#             */
-/*   Updated: 2024/11/20 13:57:37 by skirakos         ###   ########.fr       */
+/*   Updated: 2024/11/20 23:15:49 by artyavet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,17 +58,14 @@ void	ft_dups(t_minishell *minishell, int pipes, int curr)
 		&& dup2(minishell->fd[curr - 1][0], 0) == -1)
 	{
 		close_fd(minishell, pipes);
-		//printf("error ft_dups1\n");
-		//perror_exit(g_exit_status, "minishell: ");
+		print_err(1, "minishell: ", "pipe error\n", NULL);
 		exit(1);
 	}
-	//printf("n->%d\n", curr);
 	if (curr < pipes
 		&& dup2(minishell->fd[curr][1], 1) == -1)
 	{
 		close_fd(minishell, pipes);
-		//printf("error ft_dups1\n");
-		//err_message("minishell: ", "pipe error\n", "");
+		print_err(1, "minishell: ", "pipe error\n", NULL);
 		exit(1);
 	}
 	close_fd(minishell, pipes);

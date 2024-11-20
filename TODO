@@ -1,16 +1,3 @@
 SEDA:
 
-1. enum to do,for operators
-2. export(env)
-3. error handling
-4. change swithc(type operator)
-5. exit in and out of the fork
-6. exit_code can be negative ??
-7. exit y forki pahov idddkkk ???
-8. FT_TOLOWER
-
-30. echo $
-31. echo "$"
-71. echo $USER=4
-73. echo $USER213
-74. echo "$USER=12$USER" 
+	JNJEL here_doc file@

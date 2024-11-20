@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   matrix.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: skirakos <skirakos@student.42.fr>          +#+  +:+       +#+        */
+/*   By: artyavet <artyavet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 19:20:30 by skirakos          #+#    #+#             */
-/*   Updated: 2024/11/19 19:31:15 by skirakos         ###   ########.fr       */
+/*   Updated: 2024/11/20 23:13:54 by artyavet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,10 @@
 
 void	create_envp(t_minishell *minishell, char **envp)
 {
-	int	i;
-	char *join_tmp;
-	char *zibil;
-	
+	int		i;
+	char	*join_tmp;
+	char	*zibil;
+
 	i = 0;
 	while (minishell && minishell->env)
 	{
@@ -34,11 +34,11 @@ void	create_envp(t_minishell *minishell, char **envp)
 	envp[i] = NULL;
 }
 
-char **env_to_matrix(t_minishell *minishell)
+char	**env_to_matrix(t_minishell *minishell)
 {
-	int len;
-	t_env *env;
-	char **envp;
+	int		len;
+	t_env	*env;
+	char	**envp;
 
 	env = minishell->env;
 	len = 0;
@@ -69,14 +69,14 @@ void	handle_redirection(t_minishell *minishell, int type, char *file_name)
 	else if (type == HERE_DOC)
 	{
 		minishell->fd_heredoc = here_doc_open(file_name);
-		return;
+		return ;
 	}
 }
 
 void	create_matrix(t_minishell *minishell, t_split **tmp, char **matrix)
 {
 	int	i;
-	
+
 	i = 0;
 	while ((*tmp) && (*tmp)->value && (*tmp)->type != S_PIPE)
 	{

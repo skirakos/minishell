@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils_3.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: skirakos <skirakos@student.42.fr>          +#+  +:+       +#+        */
+/*   By: artyavet <artyavet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 13:34:56 by skirakos          #+#    #+#             */
-/*   Updated: 2024/11/20 13:34:57 by skirakos         ###   ########.fr       */
+/*   Updated: 2024/11/20 23:22:50 by artyavet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,17 +26,13 @@ t_split	*ft_lstnew(char *content)
 
 int	ft_strlen(char *str)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	if (!str)
-	{
 		return (0);
-	}
 	while (str[i])
-	{
 		i++;
-	}
 	return (i);
 }
 
@@ -67,13 +63,12 @@ char	*ft_substr(char *s, int start, int end)
 	j = 0;
 	if (!s)
 		return (NULL);
-	if (start >= ft_strlen(s))  // If start is beyond the length of the string
+	if (start >= ft_strlen(s))
 		i = 1;
-	else if (ft_strlen(s) < end)  // If end exceeds the string length
+	else if (ft_strlen(s) < end)
 		i = ft_strlen(s) - start + 1;
 	else
 		i = end - start + 1;
-
 	arr = (char *)malloc(sizeof(char) * i);
 	if (!arr)
 		return (NULL);

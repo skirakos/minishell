@@ -31,7 +31,7 @@ PACKAGE_TARNAME = readline
 srcdir = .
 
 top_srcdir = .
-BUILD_DIR = /Users/skirakos/Desktop/verjytanq/libraries/readline-8.2
+BUILD_DIR = /Users/artyavet/Desktop/shellverjin/libraries/readline-8.2
 
 INSTALL = /usr/bin/install -c
 INSTALL_PROGRAM = ${INSTALL}
@@ -48,7 +48,7 @@ MV = mv
 
 SHELL = /bin/sh
 
-prefix = /Users/skirakos/Desktop/verjytanq/libraries/readline
+prefix = /Users/artyavet/Desktop/shellverjin/libraries/readline
 exec_prefix = ${prefix}
 
 datarootdir = ${prefix}/share

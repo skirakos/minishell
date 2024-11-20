@@ -16,6 +16,12 @@ READLINE_LIB_PATH = $(LIBS_DIR)/readline/lib
 SRCS =	minishell.c \
 		env_copy.c \
 		tokenization.c \
+		tokenization_quote_1.c \
+		tokenization_quote_2.c \
+		tokenization_dollar.c \
+		tokenization_remove.c \
+		tokenization_env.c \
+		tokenization_operator.c \
 		utils_1.c \
 		utils_2.c \
 		utils_3.c \

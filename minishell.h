@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: skirakos <skirakos@student.42.fr>          +#+  +:+       +#+        */
+/*   By: artyavet <artyavet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 13:23:51 by skirakos          #+#    #+#             */
-/*   Updated: 2024/11/20 19:18:02 by skirakos         ###   ########.fr       */
+/*   Updated: 2024/11/20 23:25:08 by artyavet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,12 +70,27 @@ typedef struct s_split
 	struct s_split	*next;
 }	t_split;
 
+typedef struct s_dollar_var
+{
+	char	*str;
+	int		i;
+	int		is_dquote;
+	int		is_squote;
+}	t_dollar_var;
+
 typedef struct s_env
 {
 	char	*var;
 	char	*value;
 	t_env	*next;
 }	t_env;
+
+typedef struct s_quote_var
+{
+	int		j;
+	int		in_single_quote;
+	int		in_double_quote;
+}	t_quote_var;
 
 typedef struct s_merge_var
 {
@@ -93,8 +108,9 @@ typedef struct s_vars
 {
 	int		start;
 	int		end;
-	char	current_quote;
+	int		flag;
 	char	*input;
+	char	current_quote;
 }	t_vars;
 
 typedef struct s_minishell
@@ -132,15 +148,69 @@ t_env			*env_copy(char **env);
 //******************TOKENIZATION.C************************//
 //********************************************************//
 
-char			*get_from_env(t_env *env, char *key);
-void			quote_remover(t_split *item);
-char			*merge(char *before_key, char *dollar_value, char *after_key);
+void			init_vars(t_vars *vars, char *input);
+int				start_tokenisation(t_minishell *minishell,
+					char *input, t_split *item, int i);
+int				tokenization_helper(t_split *item,
+					t_minishell *minishell, t_split *tmp);
+int				tokenization(char *input, t_minishell *minishell);
+
+//********************************************************//
+//******************TOKENIZATION_QUOTE_1.C****************//
+//********************************************************//
+
+int				create_item_next(t_split **item, t_vars *vars);
+int				find_closing_quote(t_split **item, int *i, t_vars *vars);
+int				check_input(t_vars *vars, int *i);
+int				find_opening_quote(t_minishell *minishell, t_split **item,
+					int *i, t_vars *vars);
+
+//********************************************************//
+//******************TOKENIZATION_QUOTE_2.C****************//
+//********************************************************//
+
+void			quote_remover_helper(t_split *item,
+					t_quote_var *var, char *result);
+int				quote_check(t_minishell *minishell, int *i, t_vars *vars);
+void			init_quote_var(t_quote_var *var);
+int				quote_remover(t_split *item);
+
+//********************************************************//
+//******************TOKENIZATION_DOLLAR.C*****************//
+//********************************************************//
+
 char			*sedastan(char *str, int i, t_env *env, int end);
-void			dollar_sign(t_split *item, t_env *env);
-void			type_operator(t_split **item, char *input, int *i);
+void			dollar_var_init(t_dollar_var *var);
+void			sign_helper(t_dollar_var *v, char *str);
+char			*dollar_sign_helper(char *str, t_dollar_var v,
+					t_split *prev, t_env *env);
+int				dollar_sign(t_split *item, t_env *env);
+
+//********************************************************//
+//******************TOKENIZATION_REMOVE.C*****************//
+//********************************************************//
+
+void			remove_empty_nodes_continue(t_split **current,
+					t_split **prev, t_split **head);
 t_split			*remove_empty_nodes(t_split *item);
+
+//********************************************************//
+//******************TOKENIZATION_ENV.C********************//
+//********************************************************//
+
+char			*get_from_env(t_env *env, char *key);
+char			*merge(char *before_key, char *dollar_value, char *after_key);
+int				check_str(char *str, int i);
+int				check_key_in_env(t_env *env, char *key, t_split *item);
+
+//********************************************************//
+//******************TOKENIZATION_OPERATOR.C***************//
+//********************************************************//
+
 int				check_operation(t_split **item);
-void			tokenization(char *input, t_minishell *minishell);
+int				type_operator_helper_2(t_split **item, char *input, int *i);
+int				type_operator_helper(t_split **item, char *input, int *i);
+int				type_operator(t_split **item, char *input, int *i);
 
 //********************************************************//
 //******************UTILS_1.C*****************************//
@@ -176,7 +246,7 @@ char			*ft_substr(char *s, int start, int end);
 
 t_split			*pre_execve(t_minishell *minishell);
 void			builtin_helper(t_minishell *minishell);
-void			initialization(t_minishell *minishell);
+int				initialization(t_minishell *minishell);
 void			built_in(t_minishell *minishell, int curr);
 
 //********************************************************//

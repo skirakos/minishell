@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils_2.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: skirakos <skirakos@student.42.fr>          +#+  +:+       +#+        */
+/*   By: artyavet <artyavet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 19:16:29 by skirakos          #+#    #+#             */
-/*   Updated: 2024/11/19 19:19:51 by skirakos         ###   ########.fr       */
+/*   Updated: 2024/11/20 23:22:45 by artyavet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,8 @@ int	isbuiltin(char *cmd_name)
 		return (1);
 	return (0);
 }
-int is_builtin(char *cmd)
+
+int	is_builtin(char *cmd)
 {
 	if (ft_strcmp(cmd, "echo") == 0
 		|| ft_strcmp(cmd, "cd") == 0
@@ -46,9 +47,9 @@ int is_builtin(char *cmd)
 	return (0);
 }
 
-int search_slash(char *str)
+int	search_slash(char *str)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (str[i])

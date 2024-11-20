@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   unset.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: skirakos <skirakos@student.42.fr>          +#+  +:+       +#+        */
+/*   By: artyavet <artyavet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 13:41:51 by skirakos          #+#    #+#             */
-/*   Updated: 2024/11/20 13:43:51 by skirakos         ###   ########.fr       */
+/*   Updated: 2024/11/20 23:21:05 by artyavet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,14 @@ int	unset_first_node(t_minishell *minishell, t_env *tmp, int *i)
 		free(minishell->env->var);
 		free(minishell->env);
 		minishell->env = tmp;
-		(*i)++ ;
+		(*i)++;
 		return (1);
 	}
 	return (0);
 }
-int	unset_node(t_minishell *minishell, t_env *node_to_delete, t_env **prev, int i)
+
+int	unset_node(t_minishell *minishell,
+	t_env *node_to_delete, t_env **prev, int i)
 {
 	if (ft_strcmp(minishell->cmd[i], minishell->env->var) == 0)
 	{
@@ -77,7 +79,7 @@ void	unset(t_minishell *minishell)
 	t_env	*node_to_delete;
 
 	if (!minishell->env || !minishell->cmd[1])
-        return;
+		return ;
 	prev = NULL;
 	tmp = NULL;
 	node_to_delete = NULL;

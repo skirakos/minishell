@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: skirakos <skirakos@student.42.fr>          +#+  +:+       +#+        */
+/*   By: artyavet <artyavet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:37:38 by artyavet          #+#    #+#             */
-/*   Updated: 2024/11/20 17:37:45 by skirakos         ###   ########.fr       */
+/*   Updated: 2024/11/20 23:23:39 by artyavet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,29 @@ t_minishell	*minishell_init(char **env)
 	return (list);
 }
 
+void	minishell_loop(t_minishell *minishell)
+{
+	char	*input;
+
+	input = "";
+	while (input)
+	{
+		set_sig_before_rl();
+		input = readline("\033[1;90m⚙️  MINISHELL GJUK\033[0m: ");
+		set_sig_after_rl();
+		if (input && *input)
+		{
+			add_history(input);
+			if (tokenization(input, minishell))
+			{
+				free(input);
+				break ;
+			}
+		}
+		free(input);
+	}
+}
+
 int	main(int argc, char **argv, char **env)
 {
 	char		*input;
@@ -49,18 +72,7 @@ int	main(int argc, char **argv, char **env)
 	minishell = minishell_init(env);
 	if (!minishell)
 		return (1);
-	while (input)
-	{
-		set_sig_before_rl();
-		input = readline("\033[1;90m⚙️  MINISHELL GJUK\033[0m: ");
-		set_sig_after_rl();
-		if (input && *input)
-		{
-			add_history(input);
-			tokenization(input, minishell);
-		}
-		free(input);
-	}
+	minishell_loop(minishell);
 	free_before_exit(minishell);
 	ft_putstr_fd("exit\n", 1);
 	return (0);

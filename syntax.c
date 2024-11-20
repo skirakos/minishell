@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   syntax.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: skirakos <skirakos@student.42.fr>          +#+  +:+       +#+        */
+/*   By: artyavet <artyavet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 13:59:40 by skirakos          #+#    #+#             */
-/*   Updated: 2024/11/20 14:01:13 by skirakos         ###   ########.fr       */
+/*   Updated: 2024/11/20 23:19:41 by artyavet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,9 +52,9 @@ void	perror_exit(t_minishell *minishell, int err_code,
 	else if (err_code == FORK_ERR)
 		print_err(1, "minishell: ", msg, "\n");
 	else if (err_code == PIPE_ERR)
- 		print_err(2, "minishell: pipe error\n", msg, "\n");
+		print_err(2, "minishell: pipe error\n", msg, "\n");
 	else if (err_code == QUOTE_ERR)
- 		print_err(2, "minishell: quote error \n", NULL, NULL);
+		print_err(2, "minishell: quote error \n", NULL, NULL);
 	else if (err_code == CMD_NOT_FOUND)
 		print_err(2, "minishell: ", msg, ": command not found\n");
 	else if (err_code == EXECVE_ERR)
@@ -63,23 +63,23 @@ void	perror_exit(t_minishell *minishell, int err_code,
 		free_before_exit(minishell);
 }
 
-int	syntax_check(t_minishell *minishell, t_split *tokens)
+int	syntax_check(t_minishell *mini, t_split *tokens)
 {
 	if (tokens && tokens->type == S_PIPE)
-		return (perror_exit(minishell, SYNTAX_ERR, tokens->value, 1), 1);
+		return (perror_exit(mini, SYNTAX_ERR, tokens->value, 1), 1);
 	while (tokens != NULL)
 	{
 		if (tokens->type == OUT_REDIR || tokens->type == IN_REDIR \
 			|| tokens->type == APPEND_REDIR || tokens->type == HERE_DOC)
 		{
 			if (tokens->next == NULL)
-				return(perror_exit(minishell, SYNTAX_ERR, "newline", 1), 1);
+				return (perror_exit(mini, SYNTAX_ERR, "newline", 1), 1);
 			else if (tokens->next->type == S_PIPE)
-				return (perror_exit(minishell, SYNTAX_ERR, tokens->value, 1), 1);
+				return (perror_exit(mini, SYNTAX_ERR, tokens->value, 1), 1);
 		}
-		else if ((tokens->type == S_PIPE && !tokens->next) ||
-				(tokens->type == S_PIPE && is_ctrl_op(tokens->next))) // || is_permited(tokens)
-			return(perror_exit(minishell, SYNTAX_ERR, tokens->value, 1), 1);
+		else if ((tokens->type == S_PIPE && !tokens->next)
+			|| (tokens->type == S_PIPE && is_ctrl_op(tokens->next)))
+			return (perror_exit(mini, SYNTAX_ERR, tokens->value, 1), 1);
 		tokens = tokens->next;
 	}
 	return (0);

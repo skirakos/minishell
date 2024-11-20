@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   env_copy.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: skirakos <skirakos@student.42.fr>          +#+  +:+       +#+        */
+/*   By: artyavet <artyavet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 13:28:19 by skirakos          #+#    #+#             */
-/*   Updated: 2024/11/20 13:28:26 by skirakos         ###   ########.fr       */
+/*   Updated: 2024/11/20 23:12:17 by artyavet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@ int	get_value(t_env **copy, char **env, int i, int *j)
 
 	while (env[i][*j])
 	{
-		(*copy)->value = (char *)malloc(sizeof(char) * (ft_strlen(env[i]) - ft_strlen((*copy)->var) + 2));
+		(*copy)->value = (char *)malloc(sizeof(char)
+				* (ft_strlen(env[i]) - ft_strlen((*copy)->var) + 2));
 		if (!(*copy)->value)
 			return (1);
 		k = 0;
@@ -45,6 +46,7 @@ t_env	*ft_lstnew_env(char *content, char *type)
 	n->next = NULL;
 	return (n);
 }
+
 int	env_copy_helper_2(t_env *copy, char **env, int i, int *j)
 {
 	int	k;

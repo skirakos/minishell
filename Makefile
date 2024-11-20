@@ -39,6 +39,7 @@ SRCS =	minishell.c \
 		redirs.c \
 		signals.c \
 		syntax.c \
+		signals_helper.c \
 		ft_itoa.c \
 		cmd_1.c \
 		cmd_2.c \

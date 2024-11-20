@@ -6,7 +6,7 @@
 /*   By: skirakos <skirakos@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/20 13:23:51 by skirakos          #+#    #+#             */
-/*   Updated: 2024/11/20 14:23:02 by skirakos         ###   ########.fr       */
+/*   Updated: 2024/11/20 19:18:02 by skirakos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,26 @@ typedef struct s_env
 	char	*value;
 	t_env	*next;
 }	t_env;
+
+typedef struct s_merge_var
+{
+	int		n1;
+	int		n2;
+	int		k;
+	int		i;
+	int		j;
+	char	**l;
+	char	**r;
+	char	**arr;
+}	t_merge_var;
+
+typedef struct s_vars
+{
+	int		start;
+	int		end;
+	char	current_quote;
+	char	*input;
+}	t_vars;
 
 typedef struct s_minishell
 {
@@ -275,6 +295,7 @@ void			export_helper6(t_env *tmp, char **split);
 //******************MERGE_SORT.C**************************//
 //********************************************************//
 
+void			init_merge_var(t_merge_var *var, int left, int right, int mid);
 void			merge_sorted_arrays(char **arr, int left, int mid, int right);
 void			merge_sort(char **arr, int left, int right);
 
@@ -315,12 +336,18 @@ void			redirs(t_minishell *minishell);
 //******************SIGNALS.C*****************************//
 //********************************************************//
 
+void			*ft_memset(void *b, int c, size_t len);
+void			set_sig_before_rl(void);
+void			set_sig_after_rl(void);
+
+//********************************************************//
+//******************SIGNALS_HELPER.C**********************//
+//********************************************************//
+
 void			disable_echoctl(void);
 void			sig_newline(int signal);
 void			ignore_bckslash(void);
 void			signal_reset_prompt(int sig);
-void			set_sig_before_rl(void);
-void			set_sig_after_rl(void);
 
 //********************************************************//
 //******************SYNTAX.C******************************//

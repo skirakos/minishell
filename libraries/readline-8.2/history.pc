@@ -1,4 +1,4 @@
-prefix=/Users/artyavet/Desktop/verjinshell/libraries/readline
+prefix=/Users/skirakos/Desktop/verjytanq/libraries/readline
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include

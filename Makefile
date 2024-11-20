@@ -13,18 +13,25 @@ LIBS_DIR = libraries
 READLINE_LIB_PATH = $(LIBS_DIR)/readline/lib
 
 # Source files
-SRCS = minishell.c \
+SRCS =	minishell.c \
+		env_copy.c \
 		tokenization.c \
-		lst_utils.c \
-		utils.c \
+		utils_1.c \
+		utils_2.c \
+		utils_3.c \
 		built_in.c \
+		matrix.c \
 		ft_split.c \
 		echo.c \
 		cd.c \
-		pwd_env_unset.c \
+		pwd_env.c \
+		unset.c \
 		exit.c \
 		ft_atoi.c \
 		export.c \
+		export1.c \
+		export2.c \
+		export_helpers.c \
 		merge_sort.c \
 		free.c \
 		here_doc.c \
@@ -32,7 +39,11 @@ SRCS = minishell.c \
 		redirs.c \
 		signals.c \
 		syntax.c \
-		ft_itoa.c
+		ft_itoa.c \
+		cmd_1.c \
+		cmd_2.c \
+		fork.c \
+		open_check_file.c
 		
 # Object files
 OBJS = $(SRCS:.c=.o)

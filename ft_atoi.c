@@ -28,7 +28,7 @@ long	result(char *str, size_t i, char sign)
 		}
 		if (sign == '-')
 			n = -1 * n;
-		return (n);
+		return (n % 256);
 	}
 	return (-1);
 }

@@ -1,10 +1,5 @@
 #include "minishell.h"
 
-void	fo()
-{
-	// system("leaks minishell");
-}
-
 char	*get_from_env(t_env *env, char *key)
 {
 	char	*res;
@@ -218,23 +213,6 @@ void type_operator(t_split **item, char *input, int *i)
 
 }
 
-void	ft_strcut(t_split *item, char *input, int start, int end)
-{
-	int	i;
-
-	i = 0;
-	item->value = malloc(end - start + 2);
-	if (!item->value)
-		return ;
-	while (input[i] && start <= end)
-	{
-		item->value[i] = input[start];
-		i++;
-		start++;
-	}
-	item->value[i] = '\0';
-	item->type = WORD;
-}
 
 // t_split	*remove_empty_nodes(t_split *item)
 // {
@@ -445,7 +423,8 @@ void	tokenization(char *input, t_minishell *minishell)
 		item = tmp;
 		minishell->tokens = item;
 		if (minishell->tokens && minishell->tokens->value){
-			built_in(minishell);
+			initialization(minishell);
+			built_in(minishell, -1);
 		}
 	}
 	// fo();

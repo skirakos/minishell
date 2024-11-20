@@ -3,72 +3,44 @@
 /*                                                        :::      ::::::::   */
 /*   export.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: artyavet <artyavet@student.42.fr>          +#+  +:+       +#+        */
+/*   By: skirakos <skirakos@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/17 17:38:18 by artyavet          #+#    #+#             */
-/*   Updated: 2024/11/17 17:39:10 by artyavet         ###   ########.fr       */
+/*   Created: 2024/11/17 21:32:15 by artyavet          #+#    #+#             */
+/*   Updated: 2024/11/19 17:57:28 by skirakos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	check_in_env(t_env *env, char *str)
+void	export_print_helper(char **envp, int i, int j, int flag)
 {
-	t_env	*tmp;
-
-	tmp = env;
-	while(env && env->var)
+	while (envp[i][j])
 	{
-		if (ft_strcmp(env->var, str) == 0)
-			return (0);
-		env = env->next;
+		if (envp[i][j] == '=')
+		{
+			if (!envp[i][j + 1] && flag == 0)
+				break ;
+			else if (envp[i][j + 1] != '"' && flag == 0)
+			{
+				ft_putstr_fd("=\"", 1);
+				flag = 1;
+				j++;
+			}
+			else if (envp[i][j + 1] == '"')
+			{
+				ft_putstr_fd("=", 1);
+				j++;
+			}
+		}
+		write(1, &envp[i][j], 1);
+		j++;
 	}
-	env = tmp;
-	return (1);
+	if (flag == 1)
+		ft_putstr_fd("\"", 1);
 }
 
-int	is_digit(char c)
+char	**str_divide_by_equal_sign(char *str)
 {
-	if (c >= '0' && c <= '9')
-		return (1);
-	return (0);
-}
-
-int	contains_char(char *str, char c)
-{
-	int	i;
-
-	i = 0;
-	while (str[i] != '\0')
-	{
-		if (str[i] == c)
-			return (1);
-		i++;
-	}
-	return (0);
-}
-
-int	is_valid_var(char *var)
-{
-	int	i;
-
-	i = 0;
-	while (var[i] != '\0')
-	{
-		if (!((var[i] >= 'a' && var[i] <= 'z')
-			 || (var[i] >= 'A' && var[i] <= 'Z')
-			 || (var[i] >= '0' && var[i] <= '9')
-			 || (var[i] == '+' && var[i + 1] == '\0')
-			 || var[i] == '_'))
-			 return (1);
-		i++;
-	}
-	return (0);
-}
-
-char **str_divide_by_equal_sign(char *str)
-{
-	int		j;
 	int		i;
 	char	**res;
 
@@ -87,132 +59,36 @@ char **str_divide_by_equal_sign(char *str)
 		free(res);
 		return (NULL);
 	}
-	i = 0;
-	while (str[i] && str[i] != '=')
-	{
-		res[0][i] = str[i];
-		i++;
-	}
-	res[0][i] = '\0';
-	j = 0;
-	if (str[i] && str[i] == '=')
-	{
-		i++;
-		while (str[i])
-		{
-			res[1][j] = str[i++];
-			j++;
-		}
-		res[1][j] = '\0';
-	}
-	if (j == 0)
-	{
-		free(res[1]);
-		res[1] = NULL;
-	}
-	res[2] = NULL;
+	for_copy(str, res);
 	return (res);
 }
 
-void	exec_export(t_minishell *minishell)
+void	exec_export(t_minishell *minishell, int i)
 {
-	t_env	*tmp;
 	char	**split;
 	char	*new_value;
-	int		i;
 
-	i = 1;
+	new_value = NULL;
 	while (minishell->cmd[i])
 	{
-		tmp = minishell->env;
-		if(minishell->cmd[i][0] == '=' || is_digit(minishell->cmd[i][0]))
+		if (check_underscore(minishell->cmd[i], &i))
+			continue ;
+		if (minishell->cmd[i][0] == '=' || is_digit(minishell->cmd[i][0]))
 		{
-			print_err(1, "minishell: export: `", minishell->cmd[i], "': not a valid identifier\n");
-			i++;
-			continue;
+			print_err(1, "minishell: export: `", minishell->cmd[i++],
+				"': not a valid identifier\n");
+			continue ;
 		}
 		split = str_divide_by_equal_sign(minishell->cmd[i]);
 		if (is_valid_var(split[0]))
 		{
-			print_err(1, "minishell: export: `", minishell->cmd[i], "': not a valid identifier\n");
-			i++;
-			continue;
+			print_err(1, "minishell: export: `", minishell->cmd[i++],
+				"': not a valid identifier\n");
+			continue ;
 		}
-		if (contains_char(split[0], '+'))
-		{
-			split[0][ft_strlen(split[0]) - 1] = '\0';
-			if (!check_in_env(minishell->env, split[0]))
-			{
-				while (ft_strcmp(tmp->next->var, split[0]) != 0)
-					tmp = tmp->next;
-				if (!ft_strcmp(tmp->next->value, "\"\"") && split[1])
-				{
-					free(tmp->next->value);
-					tmp->next->value = NULL;
-				}
-				new_value = ft_strjoin(tmp->next->value, split[1]);
-				free(tmp->next->value);
-				tmp->next->value = new_value;
-				tmp->next->next = NULL;
-				tmp = tmp->next;
-			}
-			else
-			{
-				while (tmp->next)
-				tmp = tmp->next;
-				tmp->next = malloc(sizeof(t_env));
-				tmp->next->var = ft_strdup(split[0]);
-				tmp->next->value = ft_strdup(split[1]);
-				tmp->next->next = NULL;
-				tmp = tmp->next;
-			}
-		}
-		else if (matrix_len(split) == 1 && check_in_env(minishell->env, split[0]))
-		{
-			while (tmp->next)
-				tmp = tmp->next;
-			tmp->next = malloc(sizeof(t_env));
-			tmp->next->var = ft_strdup(split[0]);
-			if (contains_char(minishell->cmd[i], '=') == 1)
-				tmp->next->value = ft_strdup("\"\"");
-			else
-				tmp->next->value = NULL;
-			tmp->next->next = NULL;
-			tmp = tmp->next;
-		}
-		else if (matrix_len(split) == 1 && !check_in_env(minishell->env, split[0]))
-		{
-			while (ft_strcmp(tmp->next->var, split[0]) != 0)
-				tmp = tmp->next;
-			if (contains_char(minishell->cmd[i], '=') == 1)
-			{
-				free(tmp->next->value);
-				tmp->next->value = ft_strdup("\"\"");
-			}
-			tmp->next->next = NULL;
-			tmp = tmp->next;
-		}
-		else if (matrix_len(split) == 2 && check_in_env(minishell->env, split[0]) == 1)
-		{
-			while (tmp->next)
-				tmp = tmp->next;
-			tmp->next = malloc(sizeof(t_env));
-			tmp->next->var = ft_strdup(split[0]);
-			tmp->next->value = ft_strdup(split[1]);
-			tmp->next->next = NULL;
-			tmp = tmp->next;
-		}
-		else if (matrix_len(split) == 2 && check_in_env(minishell->env, split[0]) == 0)
-		{
-			while (tmp->next && ft_strcmp(split[0], tmp->var) != 0)
-				tmp = tmp->next;
-			if (tmp->value)
-				free(tmp->value);
-			tmp->value = ft_strdup(split[1]);
-			tmp = tmp->next;
-		}
-		i++;
+		export_helper(minishell, split, new_value, i);
 		free_matrix(split, matrix_len(split));
+		i++;
 	}
 }
 
@@ -228,29 +104,7 @@ void	print_env(char **envp)
 		j = 0;
 		flag = 0;
 		ft_putstr_fd("declare -x ", 1);
-		while (envp[i][j])
-		{
-			if (envp[i][j] == '=')
-			{
-				if (!envp[i][j + 1] && flag == 0)
-					break;
-				else if (envp[i][j + 1] != '"' && flag == 0)
-				{
-					ft_putstr_fd("=\"", 1);
-					flag = 1;
-					j++;
-				}
-				else if (envp[i][j + 1] == '"')
-				{
-					ft_putstr_fd("=", 1);
-					j++;
-				}
-			}
-			ft_putstr_fd(&envp[i][j], 1);
-			j++;
-		}
-		if (flag == 1)
-			ft_putstr_fd("\"", 1);
+		export_print_helper(envp, i, j, flag);
 		ft_putstr_fd("\n", 1);
 		i++;
 	}
@@ -267,6 +121,7 @@ void	export_bulki(t_minishell *minishell, char **envp)
 		print_env(envp);
 	}
 	else if (matrix_len(minishell->cmd) > 1)
-		exec_export(minishell);
+	{
+		exec_export(minishell, 1);
+	}
 }
-

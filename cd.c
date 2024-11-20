@@ -1,4 +1,33 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   cd.c                                               :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: skirakos <skirakos@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/17 17:54:35 by artyavet          #+#    #+#             */
+/*   Updated: 2024/11/20 13:40:01 by skirakos         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
+
+int	access_directory(const char	*path)
+{
+	if (access(path, R_OK | X_OK) != 0)
+		return (0);
+	else
+		return (1);
+}
+
+bool	is_directory(const char	*path)
+{
+	struct stat	path_stat;
+
+	if (stat(path, &path_stat) != 0)
+		return (false);
+	return (S_ISDIR(path_stat.st_mode));
+}
 
 void	update_env(t_env *env, char *pwd_to_set, int flag)
 {
@@ -17,7 +46,7 @@ void	update_env(t_env *env, char *pwd_to_set, int flag)
 			free(env->value);
 			env->value = NULL;
 			env->value = ft_strdup(pwd_to_set);
-			break;
+			break ;
 		}
 		env = env->next;
 	}
@@ -33,19 +62,18 @@ char	*tilda(t_minishell *minishell)
 	home_path = ft_strdup(getenv("HOME"));
 	path = ft_strjoin(home_path, path);
 	free(home_path);
-	//printf("path: %s\n", path);
 	return (path);
 }
 
-void	cd(t_minishell *minishell)
+void	cd(t_minishell *minishell, char *path)
 {
-	char	*path;
 	char	old_pwd[PATH_MAX];
 	char	new_pwd[PATH_MAX];
 
 	if (getcwd(old_pwd, PATH_MAX) != NULL)
 		update_env(minishell->env, old_pwd, 0);
-	if (!minishell->cmd[1] || ft_strcmp(minishell->cmd[1], "~") == 0 || ft_strcmp(minishell->cmd[1], "~/") == 0)
+	if (!minishell->cmd[1] || ft_strcmp(minishell->cmd[1], "~") == 0
+		|| ft_strcmp(minishell->cmd[1], "~/") == 0)
 		path = getenv("HOME");
 	else if (minishell->cmd[1][0] == '~')
 		path = tilda(minishell);
@@ -64,21 +92,4 @@ void	cd(t_minishell *minishell)
 			update_env(minishell->env, new_pwd, 1);
 		g_exit_status = 0;
 	}
-}
-
-int	access_directory(const char	*path)
-{
-	if (access(path, R_OK | X_OK) != 0)
-		return (0);
-	else
-		return (1);
-}
-
-bool	is_directory(const char	*path)
-{
-	struct stat	path_stat;
-
-	if (stat(path, &path_stat) != 0)
-		return (false);
-	return (S_ISDIR(path_stat.st_mode));
 }

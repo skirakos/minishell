@@ -3,28 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   ft_split.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: artyavet <artyavet@student.42.fr>          +#+  +:+       +#+        */
+/*   By: skirakos <skirakos@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/07 15:56:04 by skirakos          #+#    #+#             */
-/*   Updated: 2024/11/13 16:28:08 by artyavet         ###   ########.fr       */
+/*   Updated: 2024/11/20 14:19:50 by skirakos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-// void	*free_all(char **out)
-// {
-// 	int		i;
-
-// 	i = 0;
-// 	while (out[i])
-// 	{
-// 		free(out[i++]);
-// 	}
-// 	free(out);
-// 	out = NULL;
-// 	return (NULL);
-// }
 
 char	*ft_strncpy(char *s1, char *s2, int n)
 {
@@ -37,14 +23,14 @@ char	*ft_strncpy(char *s1, char *s2, int n)
 	return (s1);
 }
 
-char	**start_malloc(char *str, char **out, int wc, int j, char c)
+char	**start_malloc(char *str, char **out, int j, char c)
 {
 	int		k;
 	int		i;
 
 	k = 0;
 	i = 0;
-	out = (char **)malloc(sizeof(char *) * (wc + 1));
+	out = (char **)malloc(sizeof(char *) * (j + 1));
 	if (!out)
 		return (NULL);
 	while (str[i])
@@ -75,7 +61,6 @@ char	**ft_split(char *str, char c)
 
 	i = 0;
 	wc = 0;
-	j = 0;
 	out = NULL;
 	while (str[i])
 	{
@@ -86,27 +71,6 @@ char	**ft_split(char *str, char c)
 		while (str[i] && (str[i] != c))
 			i++;
 	}
-	return (start_malloc(str, out, wc, j, c));
+	j = wc;
+	return (start_malloc(str, out, j, c));
 }
-
-// int main()
-// {
-//     char str[] = "";
-//     char **split = ft_split(str);
-
-//     if (split)
-//     {
-//         for (int i = 0; split[i]; i++)
-//         {
-//             printf("split[%d]: %s\n", i, split[i]);
-//         }
-
-//         free_all(split);
-//     }
-//     else
-//     {
-//         printf("Memory allocation failed.\n");
-//     }
-
-//     return 0;
-// }

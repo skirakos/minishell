@@ -1,33 +1,16 @@
-#include "minishell.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   syntax.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: skirakos <skirakos@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/20 13:59:40 by skirakos          #+#    #+#             */
+/*   Updated: 2024/11/20 14:01:13 by skirakos         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-// void	perror_exit(int err_num, t_pipex *pipex, char *msg, int exit_status)
-// {
-// 	if (pipex && pipex->pipes != NULL)
-// 	{
-// 		free(pipex->pipes);
-// 		pipex->pipes = NULL;
-// 	}
-// 	if (err_num == INVALID_ARG_CNT)
-// 		exit(p_err(1, "Invalid count of arguments\n", NULL, NULL));
-// 	else if (err_num == QUOT_ERR)
-// 		q_err(exit_status, "minishell : syntax error near unexpected token `", \
-// 		msg[0], "'\n");
-// 	else if (err_num == MALLOC_ERR)
-// 		exit(p_err(exit_status, "minishell: ", NULL, ": malloc error\n"));
-// 	else if (err_num == PIPE_ERR)
-// 		perror("pipe failed");
-// 	else if (err_num == SYNTAX_ERR)
-// 		p_err(exit_status, "minishell: syntax error near unexpected token `", \
-// 		msg, "'\n");
-// 	else if (err_num == FORK_ERR)
-// 		perror("fork failed");
-// 	else if (err_num == DUP_ERR)
-// 		perror("dup failed");
-// 	else if (err_num == CMD_NOT_FOUND)
-// 		exit(p_err(exit_status, "minishell: ", msg, ": command not found\n"));
-// 	else if (err_num == EXECVE_ERR)
-// 		perror("execve failed");
-// }
+#include "minishell.h"
 
 int	is_ctrl_op(t_split	*token)
 {
@@ -41,12 +24,15 @@ int	is_ctrl_op(t_split	*token)
 
 int	is_permited(t_split *token)
 {
-	if (token->type == D_PIPE || token->type == S_AND || token->type == D_AND)
+	if (token->type == D_PIPE
+		|| token->type == S_AND
+		|| token->type == D_AND)
 		return (1);
 	return (0);
 }
 
-void	print_err(int exit_status, char *msg1, char *msg2, char *msg3)
+void	print_err(int exit_status, char *msg1,
+	char *msg2, char *msg3)
 {
 	g_exit_status = exit_status;
 	if (msg1 != NULL)
@@ -57,10 +43,12 @@ void	print_err(int exit_status, char *msg1, char *msg2, char *msg3)
 		ft_putstr_fd(msg3, 2);
 }
 
-void	perror_exit(t_minishell *minishell, int err_code, char *msg, int fork)
+void	perror_exit(t_minishell *minishell, int err_code,
+	char *msg, int fork)
 {
 	if (err_code == SYNTAX_ERR)
-		print_err(2, "minishell: syntax error near unexpected token `", msg, "'\n");
+		print_err(2, "minishell: syntax error near unexpected token `",
+			msg, "'\n");
 	else if (err_code == FORK_ERR)
 		print_err(1, "minishell: ", msg, "\n");
 	else if (err_code == PIPE_ERR)
@@ -86,10 +74,9 @@ int	syntax_check(t_minishell *minishell, t_split *tokens)
 		{
 			if (tokens->next == NULL)
 				return(perror_exit(minishell, SYNTAX_ERR, "newline", 1), 1);
-			// printf("perror_exit(SYNTAX_ERR, NULL, tokens->value, 2");
+			else if (tokens->next->type == S_PIPE)
+				return (perror_exit(minishell, SYNTAX_ERR, tokens->value, 1), 1);
 		}
-		//  else if (tokens->type == S_PIPE && !tokens->prev)
-		// 	return(perror_exit((2, NULL, tokens->value, 2), 2));
 		else if ((tokens->type == S_PIPE && !tokens->next) ||
 				(tokens->type == S_PIPE && is_ctrl_op(tokens->next))) // || is_permited(tokens)
 			return(perror_exit(minishell, SYNTAX_ERR, tokens->value, 1), 1);

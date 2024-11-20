@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: skirakos <skirakos@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/19 19:15:46 by skirakos          #+#    #+#             */
+/*   Updated: 2024/11/19 19:16:10 by skirakos         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 int	ft_strncmp(const char *s1, const char *s2, size_t n)
@@ -102,24 +114,4 @@ int	ft_strcmp(const char *s1, const char *s2)
 }
 
 
-void	ft_putstr_fd(char const *s, int fd)
-{
-	int		i;
 
-	i = 0;
-	while (s[i])
-	{
-		write(fd, &s[i], 1);
-		i++;
-	}
-}
-
-int	isbuiltin(char *cmd_name)
-{
-	if (ft_strcmp(cmd_name, "cd") == 0
-		|| ft_strcmp(cmd_name, "export") == 0
-		|| ft_strcmp(cmd_name, "unset") == 0
-		|| ft_strcmp(cmd_name, "exit") == 0)
-		return (1);
-	return (0);
-}

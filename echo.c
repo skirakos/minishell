@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   echo.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: artyavet <artyavet@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/17 18:32:46 by artyavet          #+#    #+#             */
+/*   Updated: 2024/11/17 18:33:37 by artyavet         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 int	check_newline(char	*str)
@@ -12,7 +24,6 @@ int	check_newline(char	*str)
 		if (str[i] == '\0')
 			return (0);
 	}
-	
 	return (-1);
 }
 
@@ -32,11 +43,9 @@ void	echo(char **args)
 	{
 		write(STDOUT_FILENO, args[i], ft_strlen(args[i]));
 		if (args[i + 1])
-            write(STDOUT_FILENO, " ", 1);
+			write(STDOUT_FILENO, " ", 1);
 		i++;
 	}
-	if (!newline) {
-        write(STDOUT_FILENO, "\n", 1);
-    }
-	
+	if (!newline)
+		write(STDOUT_FILENO, "\n", 1);
 }

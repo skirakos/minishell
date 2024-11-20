@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: artyavet <artyavet@student.42.fr>          +#+  +:+       +#+        */
+/*   By: skirakos <skirakos@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:37:38 by artyavet          #+#    #+#             */
-/*   Updated: 2024/11/17 17:25:38 by artyavet         ###   ########.fr       */
+/*   Updated: 2024/11/20 13:28:16 by skirakos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,87 +14,28 @@
 
 int	g_exit_status = 0;
 
-void	get_value(t_env **copy, char **env, int i, int *j)
+t_minishell *minishell_init(char **env)
 {
-	int	k;
+	t_minishell	*list;
 
-	while (env[i][*j])
-	{
-		(*copy)->value = (char *)malloc(sizeof(char) * (ft_strlen(env[i]) - ft_strlen((*copy)->var) + 2));
-		if (!(*copy)->value)
-			return ;
-		k = 0;
-		while (env[i][*j])
-		{
-			(*copy)->value[k] = env[i][*j];
-			k++;
-			(*j)++;
-		}
-		(*copy)->value[k] = '\0';
-	}
-}
-
-t_env	*ft_lstnew_env(char *content, char *type)
-{
-	t_env	*n;
-
-	n = malloc(sizeof(t_env));
-	if (!n)
+	list = malloc(sizeof(t_minishell));
+	if (!list)
 		return (NULL);
-	n->var = content;
-	n->value = type;
-	n->next = NULL;
-	return (n);
-}
-
-t_env	*env_copy(char **env)
-{
-	t_env	*copy;
-	t_env	*tmp;
-	int		i;
-	int		j;
-
-	i = 0;
-	copy = ft_lstnew_env(NULL, NULL);
-	if (!copy)
-		return (NULL);
-	tmp = copy;
-	while (env[i])
+	list->fd = NULL;
+	list->tokens = NULL;
+	list->cmd = NULL;
+	list->pid = NULL;
+	list->env = env_copy(env);
+	if (!list->env)
 	{
-		j = 0;
-		copy->next = ft_lstnew_env(NULL, NULL);
-		copy = copy->next;
-		while (env[i][j] != '=')
-			j++;
-		if (env[i][j] == '=')
-		{
-			//...printf("%d\n", j);
-			copy->var = (char *)malloc(sizeof(char) * (j + 1));
-			if (!copy->var)
-				return (NULL);
-			int	k = 0;
-			while (k < j)
-			{
-				copy->var[k] = env[i][k];
-				k++;
-			}
-			copy->var[k] = '\0';
-			//printf("aaaa\n");
-		}
-		j++;
-		get_value(&copy, env, i, &j);
-		//printf("skjhfjks\n");
-		i++;
+		free (list);
+		return (NULL);
 	}
-	copy = tmp->next;
-	free(tmp);
-	return (copy);
+	list->fd_in = 0;
+	list->fd_out = 1;
+	list->fd_heredoc = 0;
+	return (list);
 }
-
-// void	foo()
-// {
-// 	system("leaks minishell");
-// }
 
 int main(int argc, char **argv, char **env)
 {
@@ -103,34 +44,24 @@ int main(int argc, char **argv, char **env)
 	
 	(void)argv;
 	input = "";
-	if (argc == 1)
+	if (argc != 1)
+		return (1);
+	minishell = minishell_init(env);
+	if (!minishell)
+		return (1);
+	while (input)
 	{
-		minishell = malloc(sizeof(t_minishell));
-		if (!minishell)
-			return (1);
-		minishell->fd = NULL;
-		minishell->tokens = NULL;
-		minishell->cmd = NULL;
-		minishell->pid = NULL;
-		minishell->env = env_copy(env);
-		minishell->fd_in = 0;
-		minishell->fd_out = 1;
-		minishell->fd_heredoc = 0;
-		while (input)
+		set_sig_before_rl();
+		input = readline("\033[1;90m⚙️  MINISHELL GJUK\033[0m: ");
+		set_sig_after_rl();
+		if(input && *input)
 		{
-			//int g_exit_status = 0;
-			set_sig_before_rl();
-			input = readline("\033[1;90m⚙️  MINISHELL GJUK\033[0m: ");
-			set_sig_after_rl();
-			if(input && *input)
-			{
-				add_history(input);
-				tokenization(input, minishell);
-			}
-			free(input);
-			// foo();
+			add_history(input);
+			tokenization(input, minishell);
 		}
-		free_before_exit(minishell);
+		free(input);
 	}
+	free_before_exit(minishell);
+	ft_putstr_fd("exit\n", 1);
 	return (0);
 }
